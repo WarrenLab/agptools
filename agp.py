@@ -69,6 +69,10 @@ def read(infile):
             yield AgpRow(line)
 
 
+def open(filename):
+    return read(open(filename))
+
+
 def reverse_rows(chromosome_rows):
     """
     Given a list of AGP rows assembling a complete chromosome, return a

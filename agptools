@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+"""
+Docstring here
+"""
+
+import argparse
+from functools import partial
+
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+from Bio.Alphabet import generic_dna
+
+import agp
+
+def compose(f, g):
+    return lambda x: f(g(x))
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description=__doc__)
+    subparsers = parser.add_subparsers(required=True)
+
+    # --- 'split' command options ---
+    split_parser = subparsers.add_parser(
+            'split', help='split scaffolds into subscaffolds')
+
+    # --- 'join' command options ---
+    join_parser = subparsers.add_parser(
+            'join', help='join multiple scaffolds into a superscaffold')
+
+    # --- 'flip' command options ---
+    flip_parser = subparsers.add_parser(
+            'flip', help='reverse complement scaffolds or parts thereof')
+
+    # --- 'assemble' command options ---
+    assemble_parser = subparsers.add_parser(
+            'assemble', help='output scaffolds in fasta format '
+            'based on agp and contigs fasta')
+    assemble_parser.add_argument(
+            '-o', '--outfile', type=argparse.FileType('w'),
+            help='where to write fasta of scaffolds [STDOUT]',
+            default=sys.stdout)
+    assemble_parser.add_argument(
+            'contigs_fasta', type=partial(SeqIO.parse, format='fasta'),
+            help='Assembly to flip scaffolds in')
+    assemble_parser.add_argument(
+            'agp', type=compose(agp.read, open),
+            default=agp.read_agp(sys.stdin),
+            help='AGP file assembling contigs into scaffolds [STDIN]')
+    assemble_parser.set_defaults(
+            func=lambda a: assemble(a.contigs_fasta, a.outfile, a.agp))
+
+    # --- 'transform' command options ---
+    transform_parser = subparsers.add_parser(
+            'transform', help='transform coordinates in bed file from contig-'
+            'based to scaffold-based')
+
+    return parser.parse_args()
+
+
+def assemble(contigs_fasta, outfile, agp):
+    """
+    Given contigs in fasta format and their order and orientation into
+    scaffolds in AGP format, outputs the assembled scaffolds in fasta
+    format.
+
+    Args:
+        contigs_fasta (iterable): iterable returning Bio.SeqRecord
+            objects, each containing a single contig
+        outfile (file): file where scaffolds fasta should be written
+        agp (iterable): iterable returning agp.AgpRow objects, each
+            containing a single row of the agp file
+    """
+    # unfortunately, the contigs fasta file I'm writing this for has
+    # variable line-length and is thus not faidx-able, so we have to
+    # load it into memory :(
+    contigs = {record.id: record.seq for record in contigs_fasta}
+
+    current_sequence = None
+    current_chrom = None
+    # loop through AGP, skipping comment lines, which my agp library
+    # yields as strings
+    for row in filter(lambda r: not isinstance(r, str), agp):
+        # check if starting a new chromosome
+        if row.object != current_chrom:
+            # if this is not the first chromosome, output the previous
+            # chromosome
+            if current_chrom is not None:
+                record = SeqRecord(current_sequence, id=current_chrom,
+                                   description='')
+                print(record.format('fasta'), end='', file=outfile)
+            # start the new chromosome as an empty sequence
+            current_chrom = row.object
+            current_sequence = Seq('', generic_dna)
+
+        if row.is_gap:
+            current_sequence += 'N' * row.gap_length
+        else:
+            start, end = row.component_beg - 1, row.component_end
+            component = contigs[row.component_id][start:end]
+            if row.orientation == '-':
+                component = component.reverse_complement()
+            current_sequence += component
+
+    record = SeqRecord(current_sequence, id=current_chrom, description='')
+    print(record.format('fasta'), end='', file=outfile)
+
+
+if __name__ == '__main__':
+    args = parse_args()
+    args.func(args)
+

@@ -35,8 +35,7 @@ def parse_args():
             'flip', help='reverse complement scaffolds or components thereof',
             description="""
                 Reverse complement scaffolds or components thereof in an agp
-                file. Specify ranges to flip either in scaffold coordinates
-                (default) or contig coordinates with the --contigs flag.
+                file. Specify ranges to flip in scaffold coordinates.
                 Breakpoints inside of contigs not yet supported.""")
     flip_parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
                         nargs='?', help='where to write output AGP [STDOUT]',

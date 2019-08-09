@@ -13,6 +13,7 @@ from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import generic_dna
 
 import agp
+import bed
 import assemble
 
 def parse_args():
@@ -30,11 +31,32 @@ def parse_args():
 
     # --- 'flip' command options ---
     flip_parser = subparsers.add_parser(
-            'flip', help='reverse complement scaffolds or parts thereof')
+            'flip', help='reverse complement scaffolds or components thereof',
+            description="""
+                Reverse complement scaffolds or components thereof in an agp
+                file. Specify ranges to flip either in scaffold coordinates
+                (default) or contig coordinates with the --contigs flag.
+                Breakpoints inside of contigs not yet supported.""")
+    flip_parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
+                        nargs='?', help='where to write output AGP [STDOUT]',
+                        default=sys.stdout)
+    # not yet implemented! TODO
+#    flip_parser.add_argument('--contigs', action='store_true',
+#                            help='positions are in contig coordinates rather '
+#                            'than scaffold coordinates [False]')
+    flip_parser.add_argument('segments_to_flip', type=bed.open_bed,
+                             help="""list of segments to flip, in bed format.
+                             To flip a whole sequence, just put the name of
+                             the sequence on a line by itself.""")
+    flip_parser.add_argument('agp', nargs='?', type=agp.open_agp,
+                             help='AGP file to modify [STDIN]',
+                             default=agp.read(sys.stdin))
+    flip_parser.set_defaults(
+            func=lambda a: flip.run(a.segments_to_flip, a.outfile, a.agp))
 
     # --- 'assemble' command options ---
     assemble_parser = subparsers.add_parser(
-            'assemble', description='output scaffolds in fasta '
+            'assemble', help='output scaffolds in fasta '
             'format based on agp and contigs fasta')
     assemble_parser.add_argument(
             '-o', '--outfile', type=argparse.FileType('w'),
@@ -44,7 +66,7 @@ def parse_args():
             'contigs_fasta', type=partial(SeqIO.parse, format='fasta'),
             help='Assembly to flip scaffolds in')
     assemble_parser.add_argument(
-            'agp', type=agp.open, default=agp.read(sys.stdin),
+            'agp', type=agp.open_agp, default=agp.read(sys.stdin),
             help='AGP file assembling contigs into scaffolds [STDIN]')
     assemble_parser.set_defaults(
         func=lambda a: assemble.run(a.contigs_fasta, a.outfile, a.agp))
@@ -54,6 +76,10 @@ def parse_args():
             'transform', help='transform coordinates in bed file from contig-'
             'based to scaffold-based')
 
+    # --- 'compose' command options ---
+    compose_parser = subparsers.add_parser(
+            'compose', help='turn two agps assembling a genome to '
+            'different levels into a single agp')
     return parser.parse_args()
 
 

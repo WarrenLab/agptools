@@ -69,7 +69,7 @@ def read(infile):
             yield AgpRow(line)
 
 
-def open(filename):
+def open_agp(filename):
     return read(open(filename))
 
 
@@ -79,9 +79,7 @@ def reverse_rows(chromosome_rows):
     new set of rows assembling the reverse complement of the input rows.
 
     Args:
-        chromosome_rows (list): a list of OrderedDict objects, each
-            containing one AGP entry with keys specified by
-            AGP_FIELD_NAMES
+        chromosome_rows (list): an ordered list of AgpRow objects
 
     Returns:
         reverse_chromosome_rows (list): the input, except in reverse

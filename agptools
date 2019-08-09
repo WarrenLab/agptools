@@ -15,6 +15,7 @@ from Bio.Alphabet import generic_dna
 import agp
 import bed
 import assemble
+import flip
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)

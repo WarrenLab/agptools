@@ -28,7 +28,27 @@ def parse_args():
 
     # --- 'join' command options ---
     join_parser = subparsers.add_parser(
-            'join', help='join multiple scaffolds into a superscaffold')
+            'join', help='join multiple scaffolds into a superscaffold',
+            description='Join groups of scaffolds in an AGP into single '
+            'scaffolds')
+    join_parser.add_argument('-n', '--gap-size', type=int, default=500,
+                             help='size of new gaps to be created [500]')
+    join_parser.add_argument('-t', '--gap-type', default='scaffold',
+                             help='what to call new gaps in AGP [scaffold]')
+    join_parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
+                        nargs='?', help='where to write output AGP [STDOUT]',
+                        default=sys.stdout)
+    join_parser.add_argument('joins_list', type=join.joins_type, help=
+            """file listing scaffolds to join. Each line should contain
+            a comma-separated list of scaffolds to be joined into a
+            single scaffold. Scaffold names may be prefixed by + or - to
+            indicate orientation; otherwise + is assumed.""")
+    join_parser.add_argument('agp', nargs='?', type=agp.open_agp,
+                             help='AGP file to modify [STDIN]',
+                             default=agp.read(sys.stdin))
+    join_parser.set_defaults(
+            func=lambda a: join.run(a.joins_list, a.outfile, a.agp,
+                                    a.gap_size, a.gap_type))
 
     # --- 'flip' command options ---
     flip_parser = subparsers.add_parser(

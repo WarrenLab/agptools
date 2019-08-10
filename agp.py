@@ -56,6 +56,16 @@ class AgpRow:
                                        self.component_beg, self.component_end,
                                        self.orientation]))
 
+class GapRow(AgpRow):
+    def __init__(self, name, beginning, end, part_number, length=500,
+                 gap_type='scaffold', linkage='yes', evidence='paired-end'):
+        self.object = name
+        self.object_beg, self.object_end = beginning, end
+        self.part_number = part_number
+        self.component_type, self.is_gap = 'N', True
+        self.gap_length = length
+        self.linkage, self.linkage_evidence = linkage, evidence
+
 
 def read(infile):
     """

@@ -113,7 +113,7 @@ def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold',
                                       gap_type=gap_type,
                                       evidence=gap_evidence))
             component_number_counter += 1
-            end_of_previous_scaffold += outrows[-1].object_end
+            end_of_previous_scaffold = outrows[-1].object_end
 
     return outrows
 

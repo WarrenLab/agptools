@@ -2,9 +2,14 @@
 Functions for joining scaffolds
 """
 
-import itertools
+from itertools import chain
+import re
+import sys
 
+import agp
 import flip
+
+scaffold_regex = re.compile(r'([a-zA-Z0-9]+)_([a-zA-Z0-9]+)')
 
 def joins_type(filename):
     """
@@ -29,7 +34,10 @@ def joins_type(filename):
 def make_superscaffold_name(subscaffold_names):
     """
     Comes up with a nice superscaffold name based on the given
-    subscaffold names.
+    subscaffold names. If the subscaffold names are all in the format
+    '[prefix]_[suffix]', where prefix is the same for all subscaffolds,
+    then the superscaffold name is '[prefix]_[suffix1]p[suffix2]p[etc.]'
+    Otherwise, it the names of all scaffolds concatenated with 'p'.
 
     Args:
         subscaffold_names (list(str)): list of names of subscaffolds

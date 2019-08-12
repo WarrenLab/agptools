@@ -39,11 +39,17 @@ def make_superscaffold_name(subscaffold_names):
         superscaffold_name (str): a name for the new scaffolds based
             on the subscaffold names
     """
-    # TODO do something more elegant than this crap
-    return 'p'.join(subscaffold_names)
+    matches = list(map(scaffold_regex.search, subscaffold_names))
+    if all(m.group(1) == matches[0].group(1) for m in matches):
+        prefix = matches[0].group(1)
+        suffix = 'p'.join([m.group(2) for m in matches])
+        return '{}_{}'.format(prefix, suffix)
+    else:
+        return 'p'.join(subscaffold_names)
 
 
-def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold'):
+def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold',
+                   gap_evidence='na'):
     """
     Transforms agp rows from multiple scaffolds into agp rows for a
     single superscaffold containing all the given scaffolds in the
@@ -57,6 +63,7 @@ def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold'):
         gap_size (int): length of the new gaps created by joining
             scaffolds together
         gap_type (str): what to call the new gaps in the agp file
+        gap_evidence (str): evidence type for linkage across gap
 
     Returns:
         agp_rows (list(AgpRow)): a list of AgpRow instances containing
@@ -95,6 +102,7 @@ def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold'):
                                       end_of_previous_scaffold + gap_size,
                                       component_number_counter,
                                       length=gap_size,
+                                      gap_type=gap_type,
                                       evidence=gap_evidence))
             component_number_counter += 1
             end_of_previous_scaffold += outrows[-1].object_end
@@ -102,7 +110,7 @@ def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold'):
     return outrows
 
 
-def run(joins_list, outfile, agp, gap_size, gap_type):
+def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence):
     """
     Runs the 'join' module of agptools.
     """
@@ -110,7 +118,7 @@ def run(joins_list, outfile, agp, gap_size, gap_type):
     # be modified to an empty list which will later contain all agp rows
     # of that scaffold.
     scaffolds_to_join = {}
-    for name in map(lambda s: s.lstrip('+-'), itertools.chain(joins_list)):
+    for name in map(lambda s: s.lstrip('+-'), chain.from_iterable(joins_list)):
         scaffolds_to_join[name] = []
 
     # print all the rows to be output as-is and put the rows that need

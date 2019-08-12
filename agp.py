@@ -63,7 +63,7 @@ class GapRow(AgpRow):
         self.object_beg, self.object_end = beginning, end
         self.part_number = part_number
         self.component_type, self.is_gap = 'N', True
-        self.gap_length = length
+        self.gap_length, self.gap_type = length, gap_type
         self.linkage, self.linkage_evidence = linkage, evidence
 
 

@@ -16,6 +16,7 @@ import agp
 import bed
 import assemble
 import flip
+import join
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -35,6 +36,8 @@ def parse_args():
                              help='size of new gaps to be created [500]')
     join_parser.add_argument('-t', '--gap-type', default='scaffold',
                              help='what to call new gaps in AGP [scaffold]')
+    join_parser.add_argument('-e', '--gap-evidence', default='na',
+                             help='evidence type for gaps [na]')
     join_parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
                         nargs='?', help='where to write output AGP [STDOUT]',
                         default=sys.stdout)
@@ -48,7 +51,7 @@ def parse_args():
                              default=agp.read(sys.stdin))
     join_parser.set_defaults(
             func=lambda a: join.run(a.joins_list, a.outfile, a.agp,
-                                    a.gap_size, a.gap_type))
+                                    a.gap_size, a.gap_type, a.gap_evidence))
 
     # --- 'flip' command options ---
     flip_parser = subparsers.add_parser(

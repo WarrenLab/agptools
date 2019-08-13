@@ -133,7 +133,7 @@ def parse_args():
     # --- 'compose' command options ---
     compose_parser = subparsers.add_parser(
             'compose', help='turn two agps assembling a genome to '
-            'different levels into a single agp')
+            'different levels into a single agp. NOT YET IMPLEMENTED')
 
     return parser.parse_args()
 

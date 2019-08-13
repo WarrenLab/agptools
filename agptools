@@ -18,6 +18,7 @@ import assemble
 import flip
 import join
 import split
+import transform
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -114,13 +115,26 @@ def parse_args():
 
     # --- 'transform' command options ---
     transform_parser = subparsers.add_parser(
-            'transform', help='transform coordinates in bed file from contig-'
-            'based to scaffold-based')
+            'transform', help='transform coordinates in bed to scaffold-based',
+            description="""Given a bed file with coordinates on contigs and an
+            agp file assembling contigs into scaffolds, transform the bed file
+            into scaffold coordinates.""")
+    transform_parser.add_argument(
+            '-o', '--outfile', type=argparse.FileType('w'), nargs='?',
+            help='where to write output bed [STDOUT]', default=sys.stdout)
+    transform_parser.add_argument('bed', type=bed.open_bed,
+                                  help='bed file to transform')
+    transform_parser.add_argument('agp', nargs='?', type=agp.open_agp,
+                                  help='AGP file to modify [STDIN]',
+                                  default=agp.read(sys.stdin))
+    transform_parser.set_defaults(
+        func=lambda a: transform.run(a.bed, a.agp, a.outfile))
 
     # --- 'compose' command options ---
     compose_parser = subparsers.add_parser(
             'compose', help='turn two agps assembling a genome to '
             'different levels into a single agp')
+
     return parser.parse_args()
 
 

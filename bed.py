@@ -2,12 +2,30 @@
 Functions for parsing bed files
 """
 
-import collections
+class BedRange:
+    def __init__(self, chrom, start=None, end=None, extra_fields=[]):
+        self.chrom = chrom
+        self.start, self.end = start, end
+        if len(extra_fields) >= 3:
+            self.name, self.score, self.strand = extra_fields[:3]
+            self.extra_fields = extra_fields[3:]
+        else:
+            self.name, self.score, self.strand = [None] * 3
+            self.extra_fields = extra_fields
 
-BedRange = collections.namedtuple('BedRange', ['chrom', 'start', 'end'])
+    def __str__(self):
+        fields = [self.chrom]
+        if self.start and self.end:
+            fields += [self.start, self.end]
+            if self.name and self.score and self.strand:
+                fields += [self.name, self.score, self.strand]
+            fields += self.extra_fields
+        return '\t'.join(map(str, fields))
+
 
 def open_bed(filename):
     return read(open(filename))
+
 
 def read(bedfile):
     """
@@ -19,8 +37,9 @@ def read(bedfile):
     for line in bedfile:
         splits = line.strip().split('\t')
         if len(splits) == 1:
-            yield BedRange(splits[0], None, None)
+            yield BedRange(splits[0])
         else:
-            yield BedRange(splits[0], int(splits[1]), int(splits[2]))
+            yield BedRange(splits[0], start=int(splits[1]), end=int(splits[2]),
+                           extra_fields=splits[3:])
 
 

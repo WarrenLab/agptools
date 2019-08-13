@@ -17,6 +17,7 @@ import bed
 import assemble
 import flip
 import join
+import split
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -25,7 +26,23 @@ def parse_args():
 
     # --- 'split' command options ---
     split_parser = subparsers.add_parser(
-            'split', help='split scaffolds into subscaffolds')
+            'split', help='split scaffolds into subscaffolds',
+            description="""Split scaffolds into subscaffolds by breaking
+                           at gaps.""")
+    split_parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
+                        nargs='?', help='where to write output AGP [STDOUT]',
+                        default=sys.stdout)
+    split_parser.add_argument('breakpoints', type=split.breakpoints_type,
+                              help="""File listing all places where scaffolds
+                              should be broken. First column is name of
+                              scaffold; second column is a comma-separated
+                              list of locations where scaffolds should be
+                              broken. These positions must be within a gap.""")
+    split_parser.add_argument('agp', nargs='?', type=agp.open_agp,
+                             help='AGP file to modify [STDIN]',
+                             default=agp.read(sys.stdin))
+    split_parser.set_defaults(
+            func=lambda a: split.run(a.breakpoints, a.outfile, a.agp))
 
     # --- 'join' command options ---
     join_parser = subparsers.add_parser(
@@ -54,6 +71,7 @@ def parse_args():
                                     a.gap_size, a.gap_type, a.gap_evidence))
 
     # --- 'flip' command options ---
+    # TODO add a check that the range is at a contig boundary
     flip_parser = subparsers.add_parser(
             'flip', help='reverse complement scaffolds or components thereof',
             description="""

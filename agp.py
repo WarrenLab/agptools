@@ -56,6 +56,16 @@ class AgpRow:
                                        self.component_beg, self.component_end,
                                        self.orientation]))
 
+    def contains(self, position):
+        """
+        Returns true if position is within the bounds of this entry,
+        false otherwise.
+
+        Args:
+            position (int): a genomic position in base pairs
+        """
+        return self.object_beg <= position and self.object_end >= position
+
 class GapRow(AgpRow):
     def __init__(self, name, beginning, end, part_number, length=500,
                  gap_type='scaffold', linkage='yes', evidence='paired-end'):

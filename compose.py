@@ -6,6 +6,8 @@ import collections
 from functools import partial
 from itertools import chain
 
+import flip
+
 class BrokenComponentError(Exception):
     def __init__(self, outer_row, inner_row):
         self.outer_row, self.inner_row = outer_row, inner_row
@@ -56,7 +58,7 @@ def run(outer_agp, inner_agp, outfile, print_unused=False):
     # names to a list of all AgpRow instances with that object name
     inner_dict = collections.defaultdict(list)
     for inner_row in filter(lambda r: not isinstance(r, str), inner_agp):
-        inner_dict[inner_row.object].append(row)
+        inner_dict[inner_row.object].append(inner_row)
 
     previous_scaffold = None
     component_counter = 1

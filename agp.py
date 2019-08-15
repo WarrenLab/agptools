@@ -2,6 +2,13 @@
 Functions for reading and writing AGP files.
 """
 
+class AgpFormatError(Exception):
+    def __init__(self, line):
+        self.line = line
+
+    def __str__(self):
+        return 'Invalid AGP: "{}"'.format(self.line)
+
 class AgpRow:
     """
     A single non-comment row of an AGP file. Because AGP is a weird
@@ -18,25 +25,28 @@ class AgpRow:
         Creates a new instance of AgpRow by parsing the given line of
         text.
         """
-        splits = line.strip().split('\t')
-        self.object = splits[0]
-        self.object_beg = int(splits[1])
-        self.object_end = int(splits[2])
-        self.part_number = int(splits[3])
-        self.component_type = splits[4]
+        try:
+            splits = line.strip().split('\t')
+            self.object = splits[0]
+            self.object_beg = int(splits[1])
+            self.object_end = int(splits[2])
+            self.part_number = int(splits[3])
+            self.component_type = splits[4]
 
-        if self.component_type in ['N', 'U']:
-            self.is_gap = True
-            self.gap_length = int(splits[5])
-            self.gap_type = splits[6]
-            self.linkage = splits[7]
-            self.linkage_evidence = splits[8]
-        else:
-            self.is_gap = False
-            self.component_id = splits[5]
-            self.component_beg = int(splits[6])
-            self.component_end = int(splits[7])
-            self.orientation = splits[8]
+            if self.component_type in ['N', 'U']:
+                self.is_gap = True
+                self.gap_length = int(splits[5])
+                self.gap_type = splits[6]
+                self.linkage = splits[7]
+                self.linkage_evidence = splits[8]
+            else:
+                self.is_gap = False
+                self.component_id = splits[5]
+                self.component_beg = int(splits[6])
+                self.component_end = int(splits[7])
+                self.orientation = splits[8]
+        except (ValueError, IndexError) as e:
+            raise AgpFormatError(line) from e
 
     def __str__(self):
         """

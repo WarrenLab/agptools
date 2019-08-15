@@ -144,6 +144,9 @@ def parse_args():
     compose_parser.add_argument(
             '-o', '--outfile', type=argparse.FileType('w'), nargs='?',
             help='where to write output bed [STDOUT]', default=sys.stdout)
+    compose_parser.add_argument('-p', '--print-unused', action='store_true',
+                                help="""print all objects from inner AGP that
+                                were not used in outer AGP""")
     compose_parser.add_argument('outer_agp', type=agp.open_agp,
                                 help="""AGP file of the outer assembly step
                                 (e.g., scaffolds into chromosomes)""")
@@ -151,7 +154,8 @@ def parse_args():
                                 help="""AGP file of the inner assembly step
                                 (e.g., contigs into scaffolds)""")
     compose_parser.set_defaults(
-            func=lambda a: compose.run(a.outer_agp, a.inner_agp, a.outfile))
+            func=lambda a: compose.run(a.outer_agp, a.inner_agp, a.outfile,
+                                       a.print_unused))
 
     return parser.parse_args()
 

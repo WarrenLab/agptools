@@ -107,6 +107,27 @@ def split_contig(contig_row, breakpoints):
     return rows
 
 
+def convert_rows(rows, subscaffold_counter):
+    """
+    Converts rows that are part of a scaffold into their own standalone
+    scaffold. Changes the positions and part numbers so that the new
+    scaffold starts at 1, and names the new scaffold after the old
+    scaffold, but with '.{subscaffold_counter}' at the end.
+
+    Args:
+        rows (list(AgpRow)): rows to turn into their own scaffold.
+        subscaffold_counter (int): suffix to add to the old scaffold
+            name in order to turn it into the new scaffold name.
+
+    Returns:
+        new_rows (list(AgpRow)): the input rows, but with object names,
+            positions, and part numbers changed so that they now
+            function as a standalone scaffold
+    """
+    new_scaffold_name = '{}.{}'.format(rows[0].object, subscaffold_counter)
+    return unoffset_rows(new_scaffold_name, rows)
+
+
 def split_scaffold(scaffold_rows, breakpoints):
     """
     Splits a scaffold at specified breakpoints.
@@ -128,32 +149,44 @@ def split_scaffold(scaffold_rows, breakpoints):
     subscaffold_counter = 1
     for row in scaffold_rows:
         if any(map(row.contains, breakpoints)):
-            if row.is_gap: # this is a good breakpoint
-                new_scaffold_name = '{}.{}'.format(
-                        rows_this_subscaffold[0].object,
-                        subscaffold_counter,
-                        )
-                out_rows += unoffset_rows(
-                        new_scaffold_name,
-                        rows_this_subscaffold,
-                        )
+            # if the breakpoint is within a gap, our job is simple:
+            # just forget about the gap row, output the previous
+            # subscaffold, and start a new subscaffold
+            if row.is_gap:
+                out_rows += convert_rows(rows_this_subscaffold,
+                                         subscaffold_counter)
 
                 rows_this_subscaffold = []
                 subscaffold_counter += 1
-            else: # this is a bad breakpoint
-                raise BreakpointError(row.object[0],
-                                      filter(row.contains, breakpoints))
+            # if the breakpoint is not within a gap, we need to actually
+            # break a contig into pieces
+            else:
+                # split the contig into two or more rows
+                contig_rows = split_contig(
+                        row, filter(row.contains, breakpoints))
+
+                # the first row goes at the end of the current scaffold
+                rows_this_subscaffold.append(contig_rows[0])
+                del contig_rows[0]
+                out_rows += convert_rows(rows_this_subscaffold,
+                                         subscaffold_counter)
+                subscaffold_counter += 1
+
+                # the last row goes at the beginning of the next
+                # scaffold
+                rows_this_subscaffold = [contig_rows.pop()]
+
+                # if there are any rows in between, they each get their
+                # own subscaffold
+                for contig_part in contig_rows:
+                    out_rows += convert_rows([contig_part],
+                                             subscaffold_counter)
+                    subscaffold_counter += 1
+
         else: # only add this row if there are no breakpoints in it
             rows_this_subscaffold.append(row)
 
-    new_scaffold_name = '{}.{}'.format(
-            rows_this_subscaffold[0].object,
-            subscaffold_counter,
-            )
-    out_rows += unoffset_rows(
-            new_scaffold_name,
-            rows_this_subscaffold,
-            )
+    out_rows += convert_rows(rows_this_subscaffold, subscaffold_counter)
 
     return out_rows
 

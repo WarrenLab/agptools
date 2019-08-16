@@ -9,7 +9,7 @@ import sys
 import agp
 import flip
 
-scaffold_regex = re.compile(r'([a-zA-Z0-9]+)_([a-zA-Z0-9]+)')
+scaffold_regex = re.compile(r'([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)')
 
 def joins_type(filename):
     """

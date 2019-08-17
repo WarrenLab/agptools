@@ -15,7 +15,7 @@ class BedRange:
 
     def __str__(self):
         fields = [self.chrom]
-        if self.start and self.end:
+        if self.start is not None and self.end is not None:
             fields += [self.start, self.end]
             if self.name and self.score and self.strand:
                 fields += [self.name, self.score, self.strand]

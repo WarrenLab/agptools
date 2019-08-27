@@ -4,18 +4,6 @@ Functions for splitting a scaffold into subscaffolds at gaps.
 
 from copy import deepcopy
 
-class BreakpointError(Exception):
-    def __init__(self, scaffold_name, bad_breakpoints):
-        self.scaffold_name = scaffold_name
-        self.bad_breakpoints = bad_breakpoints
-
-    def __str__(self):
-        return "Breakpoint(s) {} in {} are not in a gap!".format(
-                self.scaffold_name,
-                self.bad_breakpoints,
-                )
-
-
 def breakpoints_type(filename):
     """
     Argparse type function for breakpoints file: first column is the

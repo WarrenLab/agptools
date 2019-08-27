@@ -91,8 +91,15 @@ def flip(agp_rows, ranges_to_flip):
                 elif (row.object_beg >= bed_range.start
                       and row.object_end <= bed_range.end):
                     rows_to_reverse.append((i, row))
+                # check for bad ranges (i.e., ones that only partially
+                # contain a component)
+                elif (row.contains(bed_range.start)
+                      or row.contains(bed_range.end)):
+                    raise bed.BadRangeError(bed_range)
 
         # unzip and flip those rows we've collected
+        if len(rows_to_reverse) == 0:
+            raise bed.EmptyRangeError(bed_range)
         indices, rows = map(list, zip(*rows_to_reverse))
         reversed_rows = reverse_rows(rows)
 

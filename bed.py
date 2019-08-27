@@ -2,6 +2,26 @@
 Functions for parsing bed files
 """
 
+class EmptyRangeError(Exception):
+    def __init__(self, bed_range):
+        self.bed_range = bed_range
+
+    def __str__(self):
+        return 'The range {}:{}-{} does not contain any contigs.'.format(
+                self.bed_range.chrom, self.bed_range.start, self.bed_range.end)
+
+class BadRangeError(Exception):
+    def __init__(self, bed_range):
+        self.bed_range = bed_range
+
+    def __str__(self):
+        return ('The bed range {}:{}-{} starts and/or ends in the middle of a'
+                'component. This is not supported in this module.').format(
+                        self.bed_range.chrom,
+                        self.bed_range.start,
+                        self.bed_range.end,
+                        )
+
 class BedRange:
     def __init__(self, chrom, start=None, end=None, extra_fields=[]):
         self.chrom = chrom

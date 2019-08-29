@@ -31,6 +31,11 @@ def joins_type(filename):
             joins.append(line.strip().split(','))
     return joins
 
+
+def renaming_type(filename):
+    with open(filename) as renaming_file:
+        return list(map(str.strip, renaming_file))
+
 def make_superscaffold_name(subscaffold_names):
     """
     Comes up with a nice superscaffold name based on the given
@@ -57,7 +62,7 @@ def make_superscaffold_name(subscaffold_names):
 
 
 def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold',
-                   gap_evidence='na'):
+                   gap_evidence='na', name=None):
     """
     Transforms agp rows from multiple scaffolds into agp rows for a
     single superscaffold containing all the given scaffolds in the
@@ -72,6 +77,9 @@ def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold',
             scaffolds together
         gap_type (str): what to call the new gaps in the agp file
         gap_evidence (str): evidence type for linkage across gap
+        name (str): name of new superscaffold. If None, this function
+            will come up with a name based on the names of subscaffolds
+            contained by this superscaffold
 
     Returns:
         agp_rows (list(AgpRow)): a list of AgpRow instances containing
@@ -79,7 +87,10 @@ def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold',
     """
     # make a nice name for the new superscaffold we are creating
     subscaffold_names = map(lambda s: s[0].object, superscaffold_rows)
-    superscaffold_name = make_superscaffold_name(subscaffold_names)
+    if name is None:
+        superscaffold_name = make_superscaffold_name(subscaffold_names)
+    else:
+        superscaffold_name = name
 
     # keeps track of what component number of the superscaffold we are
     # currently on
@@ -118,7 +129,8 @@ def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold',
     return outrows
 
 
-def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence):
+def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence,
+        names=None):
     """
     Runs the 'join' module of agptools.
     """
@@ -139,7 +151,7 @@ def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence):
             print(row, file=outfile)
 
     # loop through each join group
-    for join_group in joins_list:
+    for i, join_group in enumerate(joins_list):
         scaffold_rows = []
         # loop through the scaffolds in this join group
         for scaffold_name in join_group:
@@ -152,7 +164,11 @@ def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence):
                         scaffolds_to_join[scaffold_name.lstrip('+')])
 
         # print out all the rows for this join group
-        for row in join_scaffolds(scaffold_rows, gap_size, gap_type):
+        name = None
+        if names is not None:
+            name = names[i]
+        for row in join_scaffolds(scaffold_rows, gap_size, gap_type,
+                                  name=name):
             print(row, file=outfile)
 
 

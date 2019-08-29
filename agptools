@@ -57,6 +57,9 @@ def parse_args():
                              help='what to call new gaps in AGP [scaffold]')
     join_parser.add_argument('-e', '--gap-evidence', default='na',
                              help='evidence type for gaps [na]')
+    join_parser.add_argument('-r', '--renaming-file', type=join.renaming_type,
+                             help='file containing names of new objects to '
+                             'use, instead of making up names, one per line')
     join_parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
                         nargs='?', help='where to write output AGP [STDOUT]',
                         default=sys.stdout)
@@ -70,7 +73,8 @@ def parse_args():
                              default=agp.read(sys.stdin))
     join_parser.set_defaults(
             func=lambda a: join.run(a.joins_list, a.outfile, a.agp,
-                                    a.gap_size, a.gap_type, a.gap_evidence))
+                                    a.gap_size, a.gap_type, a.gap_evidence,
+                                    names=a.renaming_file))
 
     # --- 'flip' command options ---
     # TODO add a check that the range is at a contig boundary

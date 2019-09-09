@@ -3,10 +3,11 @@ Functions for composing two AGPs together.
 """
 
 import collections
-from functools import partial
-from itertools import chain
+from itertools import chain, filterfalse
 
+import agp
 import flip
+
 
 class BrokenComponentError(Exception):
     def __init__(self, outer_row, inner_row):
@@ -57,7 +58,7 @@ def run(outer_agp, inner_agp, outfile, print_unused=False):
     # definition of an outer component later. inner_dict maps object
     # names to a list of all AgpRow instances with that object name
     inner_dict = collections.defaultdict(list)
-    for inner_row in filter(lambda r: not isinstance(r, str), inner_agp):
+    for inner_row in filterfalse(agp.is_string, inner_agp):
         inner_dict[inner_row.object].append(inner_row)
 
     previous_scaffold = None
@@ -112,5 +113,4 @@ def run(outer_agp, inner_agp, outfile, print_unused=False):
     if print_unused:
         for row in chain.from_iterable(inner_dict.values()):
             print(row, file=outfile)
-
 

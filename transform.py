@@ -3,6 +3,9 @@ Functions for transforming genomic coordinates from contig-based to
 scaffold-based.
 """
 
+import agp
+
+
 class NoSuchContigError(Exception):
     def __init__(self, contig_name):
         self.contig_name = contig_name
@@ -18,7 +21,7 @@ def run(bed_in, agp_in, bed_out):
     # 2) end position of contig on scaffold (int), and
     # 3) orientation of contig on scaffold (str)
     contig_to_scaffold = {}
-    for row in filter(lambda r: not (isinstance(r, str) or r.is_gap), agp_in):
+    for row in (r for r in agp_in if not (agp.is_string(r) or r.is_gap)):
         contig_to_scaffold[row.component_id] = (row.object,
                                                 row.object_beg,
                                                 row.object_end,

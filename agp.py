@@ -2,12 +2,14 @@
 Functions for reading and writing AGP files.
 """
 
+
 class AgpFormatError(Exception):
     def __init__(self, line):
         self.line = line
 
     def __str__(self):
         return 'Invalid AGP: "{}"'.format(self.line)
+
 
 class AgpRow:
     """
@@ -76,6 +78,7 @@ class AgpRow:
         """
         return self.object_beg <= position and self.object_end >= position
 
+
 class GapRow(AgpRow):
     def __init__(self, name, beginning, end, part_number, length=500,
                  gap_type='scaffold', linkage='yes', evidence='paired-end'):
@@ -85,6 +88,11 @@ class GapRow(AgpRow):
         self.component_type, self.is_gap = 'N', True
         self.gap_length, self.gap_type = length, gap_type
         self.linkage, self.linkage_evidence = linkage, evidence
+
+
+def is_string(var):
+    """ is var a string? """
+    return isinstance(var, str)
 
 
 def read(infile):
@@ -101,5 +109,4 @@ def read(infile):
 
 def open_agp(filename):
     return read(open(filename))
-
 

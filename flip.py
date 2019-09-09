@@ -5,13 +5,8 @@ flip, output a new AGP file with those chromosomes reoriented in
 reverse-complement.
 """
 
-import argparse
-from functools import partial
-from itertools import filterfalse
-import sys
-
-import agp
 import bed
+
 
 def reverse_rows(rows):
     """
@@ -113,5 +108,4 @@ def flip(agp_rows, ranges_to_flip):
 def run(segments_to_flip, outfile, agp_rows):
     for row in flip(agp_rows, segments_to_flip):
         print(row, file=outfile)
-
 

@@ -4,6 +4,7 @@ Functions for splitting a scaffold into subscaffolds at gaps.
 
 from copy import deepcopy
 
+
 def breakpoints_type(filename):
     """
     Argparse type function for breakpoints file: first column is the
@@ -65,8 +66,7 @@ def split_contig(contig_row, breakpoints):
     >>> import agp
     >>> r = agp.AgpRow('\\t'.join(map(str, ['scaf', 501, 1000, 5, 'W',
     ...                                    'ctg', 1, 500, '+'])))
-    >>> list(map(lambda x: str(x).split('\\t'),
-    ...          split_contig(r, [750, 867])))
+    >>> [str(x).split('\\t') for x in split_contig(r, [750, 867])]
     [['scaf', '501', '750', '5', 'W', 'ctg', '1', '250', '+'],
      ['scaf', '751', '867', '6', 'W', 'ctg', '251', '367', '+'],
      ['scaf', '868', '1000', '7', 'W', 'ctg', '368', '500', '+']]
@@ -171,7 +171,7 @@ def split_scaffold(scaffold_rows, breakpoints):
                                              subscaffold_counter)
                     subscaffold_counter += 1
 
-        else: # only add this row if there are no breakpoints in it
+        else:  # only add this row if there are no breakpoints in it
             rows_this_subscaffold.append(row)
 
     out_rows += convert_rows(rows_this_subscaffold, subscaffold_counter)
@@ -180,9 +180,9 @@ def split_scaffold(scaffold_rows, breakpoints):
 
 
 def run(breakpoints, outfile, agp):
-    rows_this_scaffold = [] # list of all agp rows in current scaffold
+    rows_this_scaffold = []  # list of all agp rows in current scaffold
     for row in agp:
-        if isinstance(row, str): # print out comment rows as-is
+        if isinstance(row, str):  # print out comment rows as-is
             print(row, file=outfile)
             continue
 
@@ -194,7 +194,8 @@ def run(breakpoints, outfile, agp):
                     rows_this_scaffold,
                     breakpoints[rows_this_scaffold[0].object],
                 )
-            for r in rows_this_scaffold: print(r, file=outfile)
+            for r in rows_this_scaffold:
+                print(r, file=outfile)
             rows_this_scaffold = []
 
         rows_this_scaffold.append(row)
@@ -204,7 +205,8 @@ def run(breakpoints, outfile, agp):
             rows_this_scaffold,
             breakpoints[rows_this_scaffold[0].object],
         )
-    for r in rows_this_scaffold: print(r, file=outfile)
+    for r in rows_this_scaffold:
+        print(r, file=outfile)
 
 
 if __name__ == '__main__':

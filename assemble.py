@@ -2,16 +2,14 @@
 Functions for assembling scaffolds from contigs based on an agp file
 """
 
-import argparse
 from itertools import filterfalse
-import sys
 
-from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Alphabet import generic_dna
 
 import agp
+
 
 def run(contigs_fasta, outfile, agp_rows):
     """
@@ -35,7 +33,7 @@ def run(contigs_fasta, outfile, agp_rows):
     current_chrom = None
     # loop through AGP, skipping comment lines, which my agp library
     # yields as strings
-    for row in filter(lambda r: not isinstance(r, str), agp_rows):
+    for row in filterfalse(agp.is_string, agp_rows):
         # check if starting a new chromosome
         if row.object != current_chrom:
             # if this is not the first chromosome, output the previous
@@ -59,12 +57,4 @@ def run(contigs_fasta, outfile, agp_rows):
 
     record = SeqRecord(current_sequence, id=current_chrom, description='')
     print(record.format('fasta'), end='', file=outfile)
-
-
-# this is not meant to be run as a stand-alone executable but rather as
-# part of the 'agptools' executable; nonetheless, who am I to stop the
-# user from doing this?
-if __name__ == '__main__':
-    args = AssembleParser().parse_args()
-    args.func(args)
 

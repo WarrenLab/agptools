@@ -4,12 +4,12 @@ Functions for joining scaffolds
 
 from itertools import chain
 import re
-import sys
 
 import agp
 import flip
 
 scaffold_regex = re.compile(r'([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)')
+
 
 def joins_type(filename):
     """
@@ -35,6 +35,7 @@ def joins_type(filename):
 def renaming_type(filename):
     with open(filename) as renaming_file:
         return list(map(str.strip, renaming_file))
+
 
 def make_superscaffold_name(subscaffold_names):
     """
@@ -86,7 +87,7 @@ def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold',
             the new scaffold specification.
     """
     # make a nice name for the new superscaffold we are creating
-    subscaffold_names = map(lambda s: s[0].object, superscaffold_rows)
+    subscaffold_names = (s[0].object for s in superscaffold_rows)
     if name is None:
         superscaffold_name = make_superscaffold_name(subscaffold_names)
     else:
@@ -138,7 +139,7 @@ def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence,
     # be modified to an empty list which will later contain all agp rows
     # of that scaffold.
     scaffolds_to_join = {}
-    for name in map(lambda s: s.lstrip('+-'), chain.from_iterable(joins_list)):
+    for name in (s.lstrip('+-') for s in chain.from_iterable(joins_list)):
         scaffolds_to_join[name] = []
 
     # print all the rows to be output as-is and put the rows that need

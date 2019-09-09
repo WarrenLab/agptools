@@ -8,8 +8,8 @@ from functools import partial
 import sys
 
 from Bio import SeqIO
-from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+
 
 def break_contig(contig, breakpoints):
     """

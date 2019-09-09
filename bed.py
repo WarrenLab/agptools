@@ -2,6 +2,7 @@
 Functions for parsing bed files
 """
 
+
 class EmptyRangeError(Exception):
     def __init__(self, bed_range):
         self.bed_range = bed_range
@@ -9,6 +10,7 @@ class EmptyRangeError(Exception):
     def __str__(self):
         return 'The range {}:{}-{} does not contain any contigs.'.format(
                 self.bed_range.chrom, self.bed_range.start, self.bed_range.end)
+
 
 class BadRangeError(Exception):
     def __init__(self, bed_range):
@@ -21,6 +23,7 @@ class BadRangeError(Exception):
                         self.bed_range.start,
                         self.bed_range.end,
                         )
+
 
 class BedRange:
     def __init__(self, chrom, start=None, end=None, extra_fields=[]):
@@ -61,5 +64,4 @@ def read(bedfile):
         else:
             yield BedRange(splits[0], start=int(splits[1]), end=int(splits[2]),
                            extra_fields=splits[3:])
-
 

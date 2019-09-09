@@ -8,9 +8,6 @@ from functools import partial
 import sys
 
 from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import generic_dna
 
 import agp
 import bed
@@ -20,6 +17,7 @@ import flip
 import join
 import split
 import transform
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -31,9 +29,10 @@ def parse_args():
             'split', help='split scaffolds into subscaffolds',
             description="""Split scaffolds into subscaffolds by breaking
                            at gaps.""")
-    split_parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
-                        nargs='?', help='where to write output AGP [STDOUT]',
-                        default=sys.stdout)
+    split_parser.add_argument(
+            '-o', '--outfile', type=argparse.FileType('w'),
+            nargs='?', help='where to write output AGP [STDOUT]',
+            default=sys.stdout)
     split_parser.add_argument('breakpoints', type=split.breakpoints_type,
                               help="""File listing all places where scaffolds
                               should be broken. First column is name of
@@ -41,8 +40,8 @@ def parse_args():
                               list of locations where scaffolds should be
                               broken. These positions must be within a gap.""")
     split_parser.add_argument('agp', nargs='?', type=agp.open_agp,
-                             help='AGP file to modify [STDIN]',
-                             default=agp.read(sys.stdin))
+                              help='AGP file to modify [STDIN]',
+                              default=agp.read(sys.stdin))
     split_parser.set_defaults(
             func=lambda a: split.run(a.breakpoints, a.outfile, a.agp))
 
@@ -60,14 +59,16 @@ def parse_args():
     join_parser.add_argument('-r', '--renaming-file', type=join.renaming_type,
                              help='file containing names of new objects to '
                              'use, instead of making up names, one per line')
-    join_parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
-                        nargs='?', help='where to write output AGP [STDOUT]',
-                        default=sys.stdout)
-    join_parser.add_argument('joins_list', type=join.joins_type, help=
-            """file listing scaffolds to join. Each line should contain
-            a comma-separated list of scaffolds to be joined into a
-            single scaffold. Scaffold names may be prefixed by + or - to
-            indicate orientation; otherwise + is assumed.""")
+    join_parser.add_argument(
+            '-o', '--outfile', type=argparse.FileType('w'),
+            nargs='?', help='where to write output AGP [STDOUT]',
+            default=sys.stdout)
+    join_parser.add_argument(
+            'joins_list', type=join.joins_type, help='file listing scaffolds '
+            'to join. Each line should contain a comma-separated list of '
+            'scaffolds to be joined into a single scaffold. Scaffold names '
+            'may be prefixed by + or - to indicate orientation; otherwise + '
+            'is assumed.')
     join_parser.add_argument('agp', nargs='?', type=agp.open_agp,
                              help='AGP file to modify [STDIN]',
                              default=agp.read(sys.stdin))
@@ -77,20 +78,16 @@ def parse_args():
                                     names=a.renaming_file))
 
     # --- 'flip' command options ---
-    # TODO add a check that the range is at a contig boundary
     flip_parser = subparsers.add_parser(
             'flip', help='reverse complement scaffolds or components thereof',
             description="""
                 Reverse complement scaffolds or components thereof in an agp
                 file. Specify ranges to flip in scaffold coordinates.
                 Breakpoints inside of contigs not yet supported.""")
-    flip_parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
-                        nargs='?', help='where to write output AGP [STDOUT]',
-                        default=sys.stdout)
-    # not yet implemented! TODO
-#    flip_parser.add_argument('--contigs', action='store_true',
-#                            help='positions are in contig coordinates rather '
-#                            'than scaffold coordinates [False]')
+    flip_parser.add_argument(
+            '-o', '--outfile', type=argparse.FileType('w'),
+            nargs='?', help='where to write output AGP [STDOUT]',
+            default=sys.stdout)
     flip_parser.add_argument('segments_to_flip', type=bed.open_bed,
                              help="""list of segments to flip, in bed format.
                              To flip a whole sequence, just put the name of

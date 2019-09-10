@@ -11,6 +11,14 @@ from Bio.Alphabet import generic_dna
 import agp
 
 
+class NoSuchContigError(Exception):
+    def __init__(self, contig_name):
+        self.contig_name = contig_name
+
+    def __str__(self):
+        return 'FATAL: No contig named "{}" found.'.format(self.contig_name)
+
+
 def run(contigs_fasta, outfile, agp_rows):
     """
     Given contigs in fasta format and their order and orientation into
@@ -50,6 +58,8 @@ def run(contigs_fasta, outfile, agp_rows):
             current_sequence += 'N' * row.gap_length
         else:
             start, end = row.component_beg - 1, row.component_end
+            if row.component_id not in contigs.keys():
+                raise NoSuchContigError(row.component_id)
             component = contigs[row.component_id][start:end]
             if row.orientation == '-':
                 component = component.reverse_complement()

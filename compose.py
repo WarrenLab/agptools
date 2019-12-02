@@ -24,7 +24,7 @@ class BrokenComponentError(Exception):
                                   self.inner_row.object_end)
 
 
-def ComponentNotDefinedError(Exception):
+class ComponentNotDefinedError(Exception):
     def __init__(self, component_name):
         self.component_name = component_name
 

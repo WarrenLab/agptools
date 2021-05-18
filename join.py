@@ -11,6 +11,10 @@ import flip
 scaffold_regex = re.compile(r"([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)")
 
 
+class ScaffoldNotFoundError(Exception):
+    pass
+
+
 def joins_type(filename):
     """
     argparse type function for file listing scaffold joins
@@ -58,8 +62,7 @@ def make_superscaffold_name(subscaffold_names):
         prefix = matches[0].group(1)
         suffix = "p".join([m.group(2) for m in matches])
         return "{}_{}".format(prefix, suffix)
-    else:
-        return "p".join(subscaffold_names)
+    return "p".join(subscaffold_names)
 
 
 def join_scaffolds(
@@ -154,6 +157,11 @@ def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence, names=None):
             scaffolds_to_join[row.object].append(row)
         else:
             print(row, file=outfile)
+
+    # make sure we found agp entries for all the scaffolds
+    for scaffold_name, rows in scaffolds_to_join.items():
+        if len(rows) == 0:
+            raise ScaffoldNotFoundError(f"Scaffold {scaffold_name} not found in agp.")
 
     # loop through each join group
     for i, join_group in enumerate(joins_list):

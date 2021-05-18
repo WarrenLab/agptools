@@ -8,7 +8,7 @@ import re
 import agp
 import flip
 
-scaffold_regex = re.compile(r'([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)')
+scaffold_regex = re.compile(r"([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)")
 
 
 def joins_type(filename):
@@ -28,7 +28,7 @@ def joins_type(filename):
     joins = []
     with open(filename) as joins_file:
         for line in joins_file:
-            joins.append(line.strip().split(','))
+            joins.append(line.strip().split(","))
     return joins
 
 
@@ -56,14 +56,15 @@ def make_superscaffold_name(subscaffold_names):
     matches = list(map(scaffold_regex.search, subscaffold_names))
     if all(m.group(1) == matches[0].group(1) for m in matches):
         prefix = matches[0].group(1)
-        suffix = 'p'.join([m.group(2) for m in matches])
-        return '{}_{}'.format(prefix, suffix)
+        suffix = "p".join([m.group(2) for m in matches])
+        return "{}_{}".format(prefix, suffix)
     else:
-        return 'p'.join(subscaffold_names)
+        return "p".join(subscaffold_names)
 
 
-def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold',
-                   gap_evidence='na', name=None):
+def join_scaffolds(
+    superscaffold_rows, gap_size=500, gap_type="scaffold", gap_evidence="na", name=None
+):
     """
     Transforms agp rows from multiple scaffolds into agp rows for a
     single superscaffold containing all the given scaffolds in the
@@ -117,21 +118,24 @@ def join_scaffolds(superscaffold_rows, gap_size=500, gap_type='scaffold',
 
         # add a gap if we're not on the last subscaffold
         if i < len(superscaffold_rows) - 1:
-            outrows.append(agp.GapRow(superscaffold_name,
-                                      end_of_previous_scaffold + 1,
-                                      end_of_previous_scaffold + gap_size,
-                                      component_number_counter,
-                                      length=gap_size,
-                                      gap_type=gap_type,
-                                      evidence=gap_evidence))
+            outrows.append(
+                agp.GapRow(
+                    superscaffold_name,
+                    end_of_previous_scaffold + 1,
+                    end_of_previous_scaffold + gap_size,
+                    component_number_counter,
+                    length=gap_size,
+                    gap_type=gap_type,
+                    evidence=gap_evidence,
+                )
+            )
             component_number_counter += 1
             end_of_previous_scaffold = outrows[-1].object_end
 
     return outrows
 
 
-def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence,
-        names=None):
+def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence, names=None):
     """
     Runs the 'join' module of agptools.
     """
@@ -139,7 +143,7 @@ def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence,
     # be modified to an empty list which will later contain all agp rows
     # of that scaffold.
     scaffolds_to_join = {}
-    for name in (s.lstrip('+-') for s in chain.from_iterable(joins_list)):
+    for name in (s.lstrip("+-") for s in chain.from_iterable(joins_list)):
         scaffolds_to_join[name] = []
 
     # print all the rows to be output as-is and put the rows that need
@@ -156,20 +160,17 @@ def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence,
         scaffold_rows = []
         # loop through the scaffolds in this join group
         for scaffold_name in join_group:
-            if scaffold_name.startswith('-'):
+            if scaffold_name.startswith("-"):
                 # reverse-complement if necessary
-                scaffold_rows.append(flip.reverse_rows(
-                    scaffolds_to_join[scaffold_name.lstrip('-')]))
-            else:
                 scaffold_rows.append(
-                        scaffolds_to_join[scaffold_name.lstrip('+')])
+                    flip.reverse_rows(scaffolds_to_join[scaffold_name.lstrip("-")])
+                )
+            else:
+                scaffold_rows.append(scaffolds_to_join[scaffold_name.lstrip("+")])
 
         # print out all the rows for this join group
         name = None
         if names is not None:
             name = names[i]
-        for row in join_scaffolds(scaffold_rows, gap_size, gap_type,
-                                  name=name):
+        for row in join_scaffolds(scaffold_rows, gap_size, gap_type, name=name):
             print(row, file=outfile)
-
-

@@ -22,7 +22,7 @@ def breakpoints_type(filename):
     with open(filename) as breakpoints_file:
         for line in breakpoints_file:
             splits = line.strip().split()
-            breakpoints[splits[0]] = list(map(int, splits[1].split(',')))
+            breakpoints[splits[0]] = list(map(int, splits[1].split(",")))
     return breakpoints
 
 
@@ -87,8 +87,9 @@ def split_contig(contig_row, breakpoints):
         left_part.object_end = breakpoint
         right_part.object_beg = breakpoint + 1
         right_part.part_number += 1
-        left_part.component_end = (left_part.component_beg
-                                   + (breakpoint - left_part.object_beg))
+        left_part.component_end = left_part.component_beg + (
+            breakpoint - left_part.object_beg
+        )
         right_part.component_beg = left_part.component_end + 1
 
         rows += [left_part, right_part]
@@ -112,7 +113,7 @@ def convert_rows(rows, subscaffold_counter):
             positions, and part numbers changed so that they now
             function as a standalone scaffold
     """
-    new_scaffold_name = '{}.{}'.format(rows[0].object, subscaffold_counter)
+    new_scaffold_name = "{}.{}".format(rows[0].object, subscaffold_counter)
     return unoffset_rows(new_scaffold_name, rows)
 
 
@@ -141,8 +142,7 @@ def split_scaffold(scaffold_rows, breakpoints):
             # just forget about the gap row, output the previous
             # subscaffold, and start a new subscaffold
             if row.is_gap:
-                out_rows += convert_rows(rows_this_subscaffold,
-                                         subscaffold_counter)
+                out_rows += convert_rows(rows_this_subscaffold, subscaffold_counter)
 
                 rows_this_subscaffold = []
                 subscaffold_counter += 1
@@ -150,14 +150,12 @@ def split_scaffold(scaffold_rows, breakpoints):
             # break a contig into pieces
             else:
                 # split the contig into two or more rows
-                contig_rows = split_contig(
-                        row, filter(row.contains, breakpoints))
+                contig_rows = split_contig(row, filter(row.contains, breakpoints))
 
                 # the first row goes at the end of the current scaffold
                 rows_this_subscaffold.append(contig_rows[0])
                 del contig_rows[0]
-                out_rows += convert_rows(rows_this_subscaffold,
-                                         subscaffold_counter)
+                out_rows += convert_rows(rows_this_subscaffold, subscaffold_counter)
                 subscaffold_counter += 1
 
                 # the last row goes at the beginning of the next
@@ -167,8 +165,7 @@ def split_scaffold(scaffold_rows, breakpoints):
                 # if there are any rows in between, they each get their
                 # own subscaffold
                 for contig_part in contig_rows:
-                    out_rows += convert_rows([contig_part],
-                                             subscaffold_counter)
+                    out_rows += convert_rows([contig_part], subscaffold_counter)
                     subscaffold_counter += 1
 
         else:  # only add this row if there are no breakpoints in it
@@ -191,8 +188,7 @@ def run(breakpoints, outfile, agp):
         if rows_this_scaffold and rows_this_scaffold[0].object != row.object:
             if rows_this_scaffold[0].object in breakpoints:
                 rows_this_scaffold = split_scaffold(
-                    rows_this_scaffold,
-                    breakpoints[rows_this_scaffold[0].object],
+                    rows_this_scaffold, breakpoints[rows_this_scaffold[0].object],
                 )
             for r in rows_this_scaffold:
                 print(r, file=outfile)
@@ -202,13 +198,13 @@ def run(breakpoints, outfile, agp):
 
     if rows_this_scaffold[0].object in breakpoints:
         rows_this_scaffold = split_scaffold(
-            rows_this_scaffold,
-            breakpoints[rows_this_scaffold[0].object],
+            rows_this_scaffold, breakpoints[rows_this_scaffold[0].object],
         )
     for r in rows_this_scaffold:
         print(r, file=outfile)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import doctest
+
     doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE)

@@ -36,13 +36,13 @@ def break_contig(contig, breakpoints):
     previous_breakpoint = 0
     for i, breakpoint in enumerate(sorted(breakpoints)):
         contig_part_seq = contig.seq[previous_breakpoint:breakpoint]
-        contig_part_id = '{}_{}'.format(contig.id, i+1)
-        yield SeqRecord(contig_part_seq, id=contig_part_id, description='')
+        contig_part_id = "{}_{}".format(contig.id, i + 1)
+        yield SeqRecord(contig_part_seq, id=contig_part_id, description="")
         previous_breakpoint = breakpoint
     # get last part of contig
     contig_part_seq = contig.seq[previous_breakpoint:]
-    contig_part_id = '{}_{}'.format(contig.id, len(breakpoints)+1)
-    yield SeqRecord(contig_part_seq, id=contig_part_id, description='')
+    contig_part_id = "{}_{}".format(contig.id, len(breakpoints) + 1)
+    yield SeqRecord(contig_part_seq, id=contig_part_id, description="")
 
 
 def breakpoints_type(filename):
@@ -55,21 +55,32 @@ def breakpoints_type(filename):
     with open(filename) as breakpoints_file:
         for line in breakpoints_file:
             contig_name, positions = line.strip().split()
-            breakpoints[contig_name] = list(map(int, positions.split(',')))
+            breakpoints[contig_name] = list(map(int, positions.split(",")))
     return breakpoints
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-o', '--outfile', type=argparse.FileType('w'),
-                        nargs='?', default=sys.stdout,
-                        help='where to write broken contigs [STDOUT]')
-    parser.add_argument('contigs', type=partial(SeqIO.parse, format='fasta'),
-                        help='fasta file containing contig sequences')
-    parser.add_argument('breakpoints', type=breakpoints_type,
-                        help='list of breakpoints where each line is in the '
-                        'format "[contig_name] [comma-separated list of '
-                        'positions]"')
+    parser.add_argument(
+        "-o",
+        "--outfile",
+        type=argparse.FileType("w"),
+        nargs="?",
+        default=sys.stdout,
+        help="where to write broken contigs [STDOUT]",
+    )
+    parser.add_argument(
+        "contigs",
+        type=partial(SeqIO.parse, format="fasta"),
+        help="fasta file containing contig sequences",
+    )
+    parser.add_argument(
+        "breakpoints",
+        type=breakpoints_type,
+        help="list of breakpoints where each line is in the "
+        'format "[contig_name] [comma-separated list of '
+        'positions]"',
+    )
     return parser.parse_args()
 
 
@@ -79,10 +90,10 @@ def main():
         if contig.id in args.breakpoints:
             breakpoints = args.breakpoints[contig.id]
             for contig_piece in break_contig(contig, breakpoints):
-                print(contig_piece.format('fasta'), end='', file=args.outfile)
+                print(contig_piece.format("fasta"), end="", file=args.outfile)
         else:
-            print(contig.format('fasta'), end='', file=args.outfile)
+            print(contig.format("fasta"), end="", file=args.outfile)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

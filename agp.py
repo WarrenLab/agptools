@@ -22,20 +22,21 @@ class AgpRow:
 
     https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/
     """
+
     def __init__(self, line):
         """
         Creates a new instance of AgpRow by parsing the given line of
         text.
         """
         try:
-            splits = line.strip().split('\t')
+            splits = line.strip().split("\t")
             self.object = splits[0]
             self.object_beg = int(splits[1])
             self.object_end = int(splits[2])
             self.part_number = int(splits[3])
             self.component_type = splits[4]
 
-            if self.component_type in ['N', 'U']:
+            if self.component_type in ["N", "U"]:
                 self.is_gap = True
                 self.gap_length = int(splits[5])
                 self.gap_type = splits[6]
@@ -56,17 +57,39 @@ class AgpRow:
         text containing all the fields separated by tabs.
         """
         if self.is_gap:
-            return '\t'.join(map(str, [self.object, self.object_beg,
-                                       self.object_end, self.part_number,
-                                       self.component_type, self.gap_length,
-                                       self.gap_type, self.linkage,
-                                       self.linkage_evidence]))
+            return "\t".join(
+                map(
+                    str,
+                    [
+                        self.object,
+                        self.object_beg,
+                        self.object_end,
+                        self.part_number,
+                        self.component_type,
+                        self.gap_length,
+                        self.gap_type,
+                        self.linkage,
+                        self.linkage_evidence,
+                    ],
+                )
+            )
         else:
-            return '\t'.join(map(str, [self.object, self.object_beg,
-                                       self.object_end, self.part_number,
-                                       self.component_type, self.component_id,
-                                       self.component_beg, self.component_end,
-                                       self.orientation]))
+            return "\t".join(
+                map(
+                    str,
+                    [
+                        self.object,
+                        self.object_beg,
+                        self.object_end,
+                        self.part_number,
+                        self.component_type,
+                        self.component_id,
+                        self.component_beg,
+                        self.component_end,
+                        self.orientation,
+                    ],
+                )
+            )
 
     def contains(self, position):
         """
@@ -80,12 +103,21 @@ class AgpRow:
 
 
 class GapRow(AgpRow):
-    def __init__(self, name, beginning, end, part_number, length=500,
-                 gap_type='scaffold', linkage='yes', evidence='paired-end'):
+    def __init__(
+        self,
+        name,
+        beginning,
+        end,
+        part_number,
+        length=500,
+        gap_type="scaffold",
+        linkage="yes",
+        evidence="paired-end",
+    ):
         self.object = name
         self.object_beg, self.object_end = beginning, end
         self.part_number = part_number
-        self.component_type, self.is_gap = 'N', True
+        self.component_type, self.is_gap = "N", True
         self.gap_length, self.gap_type = length, gap_type
         self.linkage, self.linkage_evidence = linkage, evidence
 
@@ -101,7 +133,7 @@ def read(infile):
     lines as plain strings.
     """
     for line in infile:
-        if line.startswith('#'):
+        if line.startswith("#"):
             yield line.strip()
         else:
             yield AgpRow(line)
@@ -109,4 +141,3 @@ def read(infile):
 
 def open_agp(filename):
     return read(open(filename))
-

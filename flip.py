@@ -30,23 +30,17 @@ def reverse_rows(rows):
 
     reversed_rows = []
     for row in reversed(rows):
-        new_start = (first_part_start
-                     + last_part_end
-                     - row.object_end)
-        new_end = (first_part_start
-                   + last_part_end
-                   - row.object_beg)
+        new_start = first_part_start + last_part_end - row.object_end
+        new_end = first_part_start + last_part_end - row.object_beg
         row.object_beg, row.object_end = new_start, new_end
 
-        row.part_number = (first_part_number
-                           + last_part_number
-                           - row.part_number)
+        row.part_number = first_part_number + last_part_number - row.part_number
 
         if not row.is_gap:
-            if row.orientation == '+':
-                row.orientation = '-'
-            elif row.orientation == '-':
-                row.orientation = '+'
+            if row.orientation == "+":
+                row.orientation = "-"
+            elif row.orientation == "-":
+                row.orientation = "+"
             # if the orientation is something else, leave it be
 
         reversed_rows.append(row)
@@ -83,13 +77,14 @@ def flip(agp_rows, ranges_to_flip):
                 if bed_range.start is None:
                     rows_to_reverse.append((i, row))
                 # otherwise, flip only the part within range
-                elif (row.object_beg >= bed_range.start
-                      and row.object_end <= bed_range.end):
+                elif (
+                    row.object_beg >= bed_range.start
+                    and row.object_end <= bed_range.end
+                ):
                     rows_to_reverse.append((i, row))
                 # check for bad ranges (i.e., ones that only partially
                 # contain a component)
-                elif (row.contains(bed_range.start)
-                      or row.contains(bed_range.end)):
+                elif row.contains(bed_range.start) or row.contains(bed_range.end):
                     raise bed.BadRangeError(bed_range)
 
         # unzip and flip those rows we've collected
@@ -108,4 +103,3 @@ def flip(agp_rows, ranges_to_flip):
 def run(segments_to_flip, outfile, agp_rows):
     for row in flip(agp_rows, segments_to_flip):
         print(row, file=outfile)
-

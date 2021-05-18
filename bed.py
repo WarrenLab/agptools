@@ -8,8 +8,9 @@ class EmptyRangeError(Exception):
         self.bed_range = bed_range
 
     def __str__(self):
-        return 'The range {}:{}-{} does not contain any contigs.'.format(
-                self.bed_range.chrom, self.bed_range.start, self.bed_range.end)
+        return "The range {}:{}-{} does not contain any contigs.".format(
+            self.bed_range.chrom, self.bed_range.start, self.bed_range.end
+        )
 
 
 class BadRangeError(Exception):
@@ -17,12 +18,10 @@ class BadRangeError(Exception):
         self.bed_range = bed_range
 
     def __str__(self):
-        return ('The bed range {}:{}-{} starts and/or ends in the middle of a'
-                'component. This is not supported in this module.').format(
-                        self.bed_range.chrom,
-                        self.bed_range.start,
-                        self.bed_range.end,
-                        )
+        return (
+            "The bed range {}:{}-{} starts and/or ends in the middle of a"
+            "component. This is not supported in this module."
+        ).format(self.bed_range.chrom, self.bed_range.start, self.bed_range.end,)
 
 
 class BedRange:
@@ -43,7 +42,7 @@ class BedRange:
             if self.name and self.score and self.strand:
                 fields += [self.name, self.score, self.strand]
             fields += self.extra_fields
-        return '\t'.join(map(str, fields))
+        return "\t".join(map(str, fields))
 
 
 def open_bed(filename):
@@ -58,10 +57,13 @@ def read(bedfile):
     BedRange with {start,end}=None.
     """
     for line in bedfile:
-        splits = line.strip().split('\t')
+        splits = line.strip().split("\t")
         if len(splits) == 1:
             yield BedRange(splits[0])
         else:
-            yield BedRange(splits[0], start=int(splits[1]), end=int(splits[2]),
-                           extra_fields=splits[3:])
-
+            yield BedRange(
+                splits[0],
+                start=int(splits[1]),
+                end=int(splits[2]),
+                extra_fields=splits[3:],
+            )

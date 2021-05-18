@@ -47,24 +47,22 @@ def run(contigs_fasta, outfile, agp_rows):
             # if this is not the first chromosome, output the previous
             # chromosome
             if current_chrom is not None:
-                record = SeqRecord(current_sequence, id=current_chrom,
-                                   description='')
-                print(record.format('fasta'), end='', file=outfile)
+                record = SeqRecord(current_sequence, id=current_chrom, description="")
+                print(record.format("fasta"), end="", file=outfile)
             # start the new chromosome as an empty sequence
             current_chrom = row.object
-            current_sequence = Seq('', generic_dna)
+            current_sequence = Seq("", generic_dna)
 
         if row.is_gap:
-            current_sequence += 'N' * row.gap_length
+            current_sequence += "N" * row.gap_length
         else:
             start, end = row.component_beg - 1, row.component_end
             if row.component_id not in contigs.keys():
                 raise NoSuchContigError(row.component_id)
             component = contigs[row.component_id][start:end]
-            if row.orientation == '-':
+            if row.orientation == "-":
                 component = component.reverse_complement()
             current_sequence += component
 
-    record = SeqRecord(current_sequence, id=current_chrom, description='')
-    print(record.format('fasta'), end='', file=outfile)
-
+    record = SeqRecord(current_sequence, id=current_chrom, description="")
+    print(record.format("fasta"), end="", file=outfile)

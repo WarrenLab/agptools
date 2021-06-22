@@ -21,7 +21,11 @@ class BadRangeError(Exception):
         return (
             "The bed range {}:{}-{} starts and/or ends in the middle of a"
             "component. This is not supported in this module."
-        ).format(self.bed_range.chrom, self.bed_range.start, self.bed_range.end,)
+        ).format(
+            self.bed_range.chrom,
+            self.bed_range.start,
+            self.bed_range.end,
+        )
 
 
 class BedRange:

@@ -123,7 +123,7 @@ class GapRow(AgpRow):
 
 
 def is_string(var):
-    """ is var a string? """
+    """is var a string?"""
     return isinstance(var, str)
 
 

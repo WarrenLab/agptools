@@ -188,7 +188,8 @@ def run(breakpoints, outfile, agp):
         if rows_this_scaffold and rows_this_scaffold[0].object != row.object:
             if rows_this_scaffold[0].object in breakpoints:
                 rows_this_scaffold = split_scaffold(
-                    rows_this_scaffold, breakpoints[rows_this_scaffold[0].object],
+                    rows_this_scaffold,
+                    breakpoints[rows_this_scaffold[0].object],
                 )
             for r in rows_this_scaffold:
                 print(r, file=outfile)
@@ -198,7 +199,8 @@ def run(breakpoints, outfile, agp):
 
     if rows_this_scaffold[0].object in breakpoints:
         rows_this_scaffold = split_scaffold(
-            rows_this_scaffold, breakpoints[rows_this_scaffold[0].object],
+            rows_this_scaffold,
+            breakpoints[rows_this_scaffold[0].object],
         )
     for r in rows_this_scaffold:
         print(r, file=outfile)

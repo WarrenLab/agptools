@@ -21,7 +21,14 @@ class NoSuchContigError(Exception):
 
 def complement(base: str):
     complement_dict = {
-        "A": "T", "a": "t", "C": "G", "c": "g", "G": "C", "g": "c", "T": "A", "t": "a"
+        "A": "T",
+        "a": "t",
+        "C": "G",
+        "c": "g",
+        "G": "C",
+        "g": "c",
+        "T": "A",
+        "t": "a",
     }
     if base in complement_dict:
         return complement_dict[base]
@@ -30,7 +37,7 @@ def complement(base: str):
 
 
 def reverse_complement(sequence: str):
-    return ''.join(complement(s) for s in sequence[::-1])
+    return "".join(complement(s) for s in sequence[::-1])
 
 
 def sequence_to_fasta(name: str, sequence: str, wrap: int = 60) -> str:
@@ -51,9 +58,12 @@ def sequence_to_fasta(name: str, sequence: str, wrap: int = 60) -> str:
     fasta_lines = []
     fasta_lines.append(f">{name}")
     fasta_lines += textwrap.wrap(sequence, width=wrap)
-    return '\n'.join(fasta_lines)
+    return "\n".join(fasta_lines)
 
-def run(contigs_fasta: screed.openscreed.Open, outfile: IO, agp_rows: Iterable[agp.AgpRow]):
+
+def run(
+    contigs_fasta: screed.openscreed.Open, outfile: IO, agp_rows: Iterable[agp.AgpRow]
+):
     """
     Given contigs in fasta format and their order and orientation into
     scaffolds in AGP format, outputs the assembled scaffolds in fasta

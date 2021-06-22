@@ -6,7 +6,7 @@ import collections
 from itertools import chain, filterfalse
 
 import agp
-import flip
+from agp import flip
 
 
 class BrokenComponentError(Exception):

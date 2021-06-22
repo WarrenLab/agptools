@@ -6,7 +6,7 @@ from itertools import chain
 import re
 
 import agp
-import flip
+from agp import flip
 
 scaffold_regex = re.compile(r"([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)")
 

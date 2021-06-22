@@ -7,16 +7,10 @@ import argparse
 from functools import partial
 import sys
 
-from Bio import SeqIO
+import screed
 
 import agp
-import bed
-import assemble
-import compose
-import flip
-import join
-import split
-import transform
+from agp import bed, assemble, compose, flip, join, split, transform
 
 
 def parse_args():
@@ -107,7 +101,7 @@ def parse_args():
             help='where to write fasta of scaffolds [STDOUT]',
             default=sys.stdout)
     assemble_parser.add_argument(
-            'contigs_fasta', type=partial(SeqIO.parse, format='fasta'),
+            'contigs_fasta', type=screed.open,
             help='Assembly to flip scaffolds in')
     assemble_parser.add_argument(
             'agp', type=agp.open_agp, default=agp.read(sys.stdin),

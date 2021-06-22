@@ -3,10 +3,10 @@ Functions for assembling scaffolds from contigs based on an agp file
 """
 
 from itertools import filterfalse
+import textwrap
+from typing import Iterable, IO
 
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import generic_dna
+import screed
 
 import agp
 
@@ -19,15 +19,48 @@ class NoSuchContigError(Exception):
         return 'FATAL: No contig named "{}" found.'.format(self.contig_name)
 
 
-def run(contigs_fasta, outfile, agp_rows):
+def complement(base: str):
+    complement_dict = {
+        "A": "T", "a": "t", "C": "G", "c": "g", "G": "C", "g": "c", "T": "A", "t": "a"
+    }
+    if base in complement_dict:
+        return complement_dict[base]
+    else:
+        return base
+
+
+def reverse_complement(sequence: str):
+    return ''.join(complement(s) for s in sequence[::-1])
+
+
+def sequence_to_fasta(name: str, sequence: str, wrap: int = 60) -> str:
+    """
+    Given a sequence name and the sequence itself, make it into a fasta-
+    formatted string.
+
+    Arguments:
+        name: the sequence id
+        sequence: the sequence itself
+        wrap: the number of bases per line of sequence
+
+    Returns: the sequence in fasta format
+
+    >>> sequence_to_fasta('chr1', 'ACTGGAGACATATAGTCCCACG', wrap=10)
+    '>chr1\nACTGGAGACA\nTATAGTCCCA\nCG'
+    """
+    fasta_lines = []
+    fasta_lines.append(f">{name}")
+    fasta_lines += textwrap.wrap(sequence, width=wrap)
+    return '\n'.join(fasta_lines)
+
+def run(contigs_fasta: screed.openscreed.Open, outfile: IO, agp_rows: Iterable[agp.AgpRow]):
     """
     Given contigs in fasta format and their order and orientation into
     scaffolds in AGP format, outputs the assembled scaffolds in fasta
     format.
 
     Args:
-        contigs_fasta (iterable): iterable returning Bio.SeqRecord
-            objects, each containing a single contig
+        contigs_fasta: fasta iterator in screed format containing contigs
         outfile (file): file where scaffolds fasta should be written
         agp (iterable): iterable returning agp.AgpRow objects, each
             containing a single row of the agp file
@@ -35,7 +68,7 @@ def run(contigs_fasta, outfile, agp_rows):
     # unfortunately, the contigs fasta file I'm writing this for has
     # variable line-length and is thus not faidx-able, so we have to
     # load it into memory :(
-    contigs = {record.id: record.seq for record in contigs_fasta}
+    contigs = {record.name: record.sequence for record in contigs_fasta}
 
     current_sequence = None
     current_chrom = None
@@ -47,11 +80,10 @@ def run(contigs_fasta, outfile, agp_rows):
             # if this is not the first chromosome, output the previous
             # chromosome
             if current_chrom is not None:
-                record = SeqRecord(current_sequence, id=current_chrom, description="")
-                print(record.format("fasta"), end="", file=outfile)
+                print(sequence_to_fasta(current_sequence, current_chrom), file=outfile)
             # start the new chromosome as an empty sequence
             current_chrom = row.object
-            current_sequence = Seq("", generic_dna)
+            current_sequence = ""
 
         if row.is_gap:
             current_sequence += "N" * row.gap_length
@@ -61,8 +93,7 @@ def run(contigs_fasta, outfile, agp_rows):
                 raise NoSuchContigError(row.component_id)
             component = contigs[row.component_id][start:end]
             if row.orientation == "-":
-                component = component.reverse_complement()
+                component = reverse_complement(component)
             current_sequence += component
 
-    record = SeqRecord(current_sequence, id=current_chrom, description="")
-    print(record.format("fasta"), end="", file=outfile)
+    print(sequence_to_fasta(current_sequence, current_chrom), file=outfile)

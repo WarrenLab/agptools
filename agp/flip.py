@@ -5,7 +5,7 @@ flip, output a new AGP file with those chromosomes reoriented in
 reverse-complement.
 """
 
-import bed
+from agp import bed
 
 
 def reverse_rows(rows):

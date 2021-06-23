@@ -90,7 +90,7 @@ def run(
             # if this is not the first chromosome, output the previous
             # chromosome
             if current_chrom is not None:
-                print(sequence_to_fasta(current_sequence, current_chrom), file=outfile)
+                print(sequence_to_fasta(current_chrom, current_sequence), file=outfile)
             # start the new chromosome as an empty sequence
             current_chrom = row.object
             current_sequence = ""
@@ -106,4 +106,4 @@ def run(
                 component = reverse_complement(component)
             current_sequence += component
 
-    print(sequence_to_fasta(current_sequence, current_chrom), file=outfile)
+    print(sequence_to_fasta(current_chrom, current_sequence), file=outfile)

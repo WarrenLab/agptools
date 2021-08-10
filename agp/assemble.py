@@ -3,7 +3,6 @@ Functions for assembling scaffolds from contigs based on an agp file
 """
 
 from itertools import filterfalse
-import textwrap
 from typing import Iterable, IO
 
 import screed
@@ -40,25 +39,28 @@ def reverse_complement(sequence: str):
     return "".join(complement(s) for s in sequence[::-1])
 
 
-def sequence_to_fasta(name: str, sequence: str, wrap: int = 60) -> str:
+def print_fasta(name: str, sequence: str, outfile: IO, wrap: int = 60):
     """
-    Given a sequence name and the sequence itself, make it into a fasta-
-    formatted string.
+    Given a sequence name and the sequence itself, print a fasta-
+    formatted string of it.
 
     Arguments:
         name: the sequence id
         sequence: the sequence itself
+        outfile: where to write the sequence to
         wrap: the number of bases per line of sequence
 
     Returns: the sequence in fasta format
 
-    >>> sequence_to_fasta('chr1', 'ACTGGAGACATATAGTCCCACG', wrap=10)
-    '>chr1\nACTGGAGACA\nTATAGTCCCA\nCG'
+    >>> print_fasta('chr1', 'ATCGACTGATCGACTGACTGACTACTG', outfile=sys.stdout, wrap=10)
+    >chr1
+    ATCGACTGAT
+    CGACTGACTG
+    ACTACTG
     """
-    fasta_lines = []
-    fasta_lines.append(f">{name}")
-    fasta_lines += textwrap.wrap(sequence, width=wrap)
-    return "\n".join(fasta_lines)
+    print(f">{name}", file=outfile)
+    for start_pos in range(0, len(sequence), wrap):
+        print(sequence[start_pos : start_pos + wrap])
 
 
 def run(
@@ -90,7 +92,7 @@ def run(
             # if this is not the first chromosome, output the previous
             # chromosome
             if current_chrom is not None:
-                print(sequence_to_fasta(current_chrom, current_sequence), file=outfile)
+                print_fasta(current_chrom, current_sequence, outfile=outfile)
             # start the new chromosome as an empty sequence
             current_chrom = row.object
             current_sequence = ""
@@ -106,4 +108,4 @@ def run(
                 component = reverse_complement(component)
             current_sequence += component
 
-    print(sequence_to_fasta(current_chrom, current_sequence), file=outfile)
+    print_fasta(current_chrom, current_sequence, outfile=outfile)

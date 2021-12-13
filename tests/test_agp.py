@@ -1,8 +1,8 @@
 import os.path
+
 import pytest
 
 import agp
-
 
 gap_row_string = "scaffold_18\t8679231\t8679730\t28\tN\t500\tscaffold\tyes\tna"
 contig_row_string = (

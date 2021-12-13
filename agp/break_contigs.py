@@ -4,8 +4,8 @@ Given a fasta of contigs and a list of breakpoints, break the contigs
 at these breakpoints.
 """
 import argparse
-from functools import partial
 import sys
+from functools import partial
 
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord

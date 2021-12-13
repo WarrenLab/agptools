@@ -3,7 +3,7 @@ Functions for assembling scaffolds from contigs based on an agp file
 """
 
 from itertools import filterfalse
-from typing import Iterable, IO
+from typing import IO, Iterable
 
 import screed
 
@@ -108,4 +108,5 @@ def run(
                 component = reverse_complement(component)
             current_sequence += component
 
-    print_fasta(current_chrom, current_sequence, outfile=outfile)
+    if current_sequence is not None and current_chrom is not None:
+        print_fasta(current_chrom, current_sequence, outfile=outfile)

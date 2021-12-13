@@ -4,13 +4,12 @@ Various tools for modifying and using agp files
 """
 
 import argparse
-from functools import partial
 import sys
 
 import screed
 
 import agp
-from agp import bed, assemble, compose, flip, join, split, transform
+from agp import assemble, bed, compose, flip, join, split, transform
 
 
 def parse_args():

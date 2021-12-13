@@ -2,8 +2,8 @@
 Functions for joining scaffolds
 """
 
-from itertools import chain
 import re
+from itertools import chain
 
 import agp
 from agp import flip

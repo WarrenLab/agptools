@@ -52,6 +52,7 @@ def print_fasta(name: str, sequence: str, outfile: IO, wrap: int = 60):
 
     Returns: the sequence in fasta format
 
+    >>> import sys
     >>> print_fasta('chr1', 'ATCGACTGATCGACTGACTGACTACTG', outfile=sys.stdout, wrap=10)
     >chr1
     ATCGACTGAT

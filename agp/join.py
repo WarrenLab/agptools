@@ -5,8 +5,8 @@ Functions for joining scaffolds
 import re
 from itertools import chain
 
-import agp
-from agp import flip
+from agp import AgpRow, GapRow
+from agp.flip import reverse_rows
 
 scaffold_regex = re.compile(r"([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)")
 
@@ -122,7 +122,7 @@ def join_scaffolds(
         # add a gap if we're not on the last subscaffold
         if i < len(superscaffold_rows) - 1:
             outrows.append(
-                agp.GapRow(
+                GapRow(
                     superscaffold_name,
                     end_of_previous_scaffold + 1,
                     end_of_previous_scaffold + gap_size,
@@ -138,7 +138,7 @@ def join_scaffolds(
     return outrows
 
 
-def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence, names=None):
+def run(joins_list, outfile, agp_infile, gap_size, gap_type, gap_evidence, names=None):
     """
     Runs the 'join' module of agptools.
     """
@@ -152,8 +152,8 @@ def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence, names=None):
     # print all the rows to be output as-is and put the rows that need
     # to be modified first into the correct slot of the
     # scaffolds_to_join dict
-    for row in agp:
-        if row.object in scaffolds_to_join:
+    for row in agp_infile:
+        if isinstance(row, AgpRow) and row.object in scaffolds_to_join:
             scaffolds_to_join[row.object].append(row)
         else:
             print(row, file=outfile)
@@ -171,7 +171,7 @@ def run(joins_list, outfile, agp, gap_size, gap_type, gap_evidence, names=None):
             if scaffold_name.startswith("-"):
                 # reverse-complement if necessary
                 scaffold_rows.append(
-                    flip.reverse_rows(scaffolds_to_join[scaffold_name.lstrip("-")])
+                    reverse_rows(scaffolds_to_join[scaffold_name.lstrip("-")])
                 )
             else:
                 scaffold_rows.append(scaffolds_to_join[scaffold_name.lstrip("+")])

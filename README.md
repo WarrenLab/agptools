@@ -70,8 +70,8 @@ It contains eight contigs (and seven gaps, naturally).
 ## split
 The split module breaks a scaffold into multiple scaffolds. There are two
 common cases where this operation may be necessary:
-1. The scaffolder joined two sequences together that aren't actually on the
-   same chromosome.
+1. The scaffolder (or even contig assembler) joined two sequences together that
+   aren't actually on the same chromosome.
 2. The scaffolder joined two sequences together that are in fact on the same
    chromosome, but it did it in the wrong order, so you want to split the
    scaffold up into pieces and then put the pieces back together in a different
@@ -97,23 +97,68 @@ coordinate inside the gap and it will have the same result.
 
 Here is the command:
 ```
-agptools split splits.txt test.agp > output.agp
+agptools split splits.txt test.agp > split_out.agp
 ```
 Here is the output:
 ```
-scaffold_16.1	1	     1096465	1	W	tig00005080|arrow|arrow	1	1096465	-
+scaffold_16.1	1	     1096465	1	W	tig00005080	 1	1096465	-
 scaffold_16.1	1096466	 1096965	2	N	500	scaffold	yes	na
-scaffold_16.1	1096966	 1973201	3	W	tig00001012|arrow|arrow	1	876236	+
+scaffold_16.1	1096966	 1973201	3	W	tig00001012	 1	876236	+
 scaffold_16.1	1973202	 1973701	4	N	500	scaffold	yes	na
-scaffold_16.1	1973702	 4258994	5	W	tig00182876|arrow|arrow	1	2285293	-
-scaffold_16.2	1	     7504769	1	W	tig00000113|arrow|arrow	1	7504769	+
+scaffold_16.1	1973702	 4258994	5	W	tig00182876	 1	2285293	-
+scaffold_16.2	1	     7504769	1	W	tig00000113	 1	7504769	+
 scaffold_16.2	7504770	 7505269	2	N	500	scaffold	yes	na
-scaffold_16.2	7505270	 9508511	3	W	tig00004962|arrow|arrow	1	2003242	-
+scaffold_16.2	7505270	 9508511	3	W	tig00004962	 1	2003242	-
 scaffold_16.2	9508512	 9509011	4	N	500	scaffold	yes	na
-scaffold_16.2	9509012	 13734566	5	W	tig00004933|arrow|arrow	1	4225555	-
+scaffold_16.2	9509012	 13734566	5	W	tig00004933	 1	4225555	-
 scaffold_16.2	1373456	 13735066	6	N	500	scaffold	yes	na
-scaffold_16.2	13735067 16806869	7	W	tig00000080|arrow|arrow	1	3071803 -
-scaffold_16.3	1	     740971     1	W	tig00183148|arrow|arrow	1	740971	+
+scaffold_16.2	13735067 16806869	7	W	tig00000080	 1	3071803 -
+scaffold_16.3	1	     740971     1	W	tig00183148	 1	740971	+
+```
+
+## join
+The join module is for taking two different scaffolds and joining them into one
+scaffold. Common use-cases for this include:
+* The scaffolder failed to join two contigs that belong together
+* You want to split up the pieces of a scaffold and put them back together
+  again in a different order
+
+The two required arguments for this module are a file specifying what joins
+you want to make, and the AGP file you want to modify. The joins list contains
+one join per line. Each line is a comma-separated list of scaffolds you want
+to put together in the correct order. You can prefix the name of a scaffold with
+'+' or '-' to specify its orientation; scaffolds with no orientation specified
+are '+' by default.
+
+You can also change the default size, type, and evidence of the newly created
+gaps with command-line arguments. See help message for details.
+
+Here is an example joins file:
+```
+scaffold_16.2,-scaffold_16.3,+scaffold_16.1
+```
+
+Here is an example command:
+```bash
+agptools join joins.txt split_out.agp > join_out.agp
+```
+And here is the output of that command:
+```
+scaffold_16.2p16.3p16.1 1        7504769    1   W   tig00000113 1   7504769 +
+scaffold_16.2p16.3p16.1 7504770  7505269    2   N   500 scaffold    yes na
+scaffold_16.2p16.3p16.1 7505270  9508511    3   W   tig00004962 1   2003242 -
+scaffold_16.2p16.3p16.1 9508512  9509011    4   N   500 scaffold    yes na
+scaffold_16.2p16.3p16.1 9509012  1373456    5   W   tig00004933 1   4225555 -
+scaffold_16.2p16.3p16.1 13734567 1373506    6   N   500 scaffold    yes na
+scaffold_16.2p16.3p16.1 13735067 1680686    7   W   tig00000080 1   3071803 -
+scaffold_16.2p16.3p16.1 16806870 1680736    8   N   500 scaffold    yes na
+scaffold_16.2p16.3p16.1 16807370 1754834    9   W   tig00183148 1   740971 -
+scaffold_16.2p16.3p16.1 17548341 1754884    1   N   500 scaffold    yes na
+scaffold_16.2p16.3p16.1 17548841 1864530    1   W   tig00005080 1   1096465 -
+scaffold_16.2p16.3p16.1 18645306 1864580    1   N   500 scaffold    yes na
+scaffold_16.2p16.3p16.1 18645806 1952204    1   W   tig00001012 1   876236 +
+scaffold_16.2p16.3p16.1 19522042 1952254    1   N   500 scaffold    yes na
+scaffold_16.2p16.3p16.1 19522542 2180783    1   W   tig00182876 1   2285293 -
 ```
 
 [agp]: https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/

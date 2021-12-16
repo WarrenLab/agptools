@@ -4,6 +4,7 @@ Functions for joining scaffolds
 
 import re
 from itertools import chain
+from typing import Dict, Iterable, Iterator, List, Match, TextIO, Union, cast
 
 from agp import AgpRow, GapRow
 from agp.flip import reverse_rows
@@ -15,7 +16,7 @@ class ScaffoldNotFoundError(Exception):
     pass
 
 
-def joins_type(filename):
+def joins_type(filename: str) -> List[List[str]]:
     """
     argparse type function for file listing scaffold joins
 
@@ -36,12 +37,12 @@ def joins_type(filename):
     return joins
 
 
-def renaming_type(filename):
+def renaming_type(filename: str) -> List[str]:
     with open(filename) as renaming_file:
         return list(map(str.strip, renaming_file))
 
 
-def make_superscaffold_name(subscaffold_names):
+def make_superscaffold_name(subscaffold_names: Iterable[str]) -> str:
     """
     Comes up with a nice superscaffold name based on the given
     subscaffold names. If the subscaffold names are all in the format
@@ -57,17 +58,24 @@ def make_superscaffold_name(subscaffold_names):
         superscaffold_name (str): a name for the new scaffolds based
             on the subscaffold names
     """
+    # TODO this casting is necessary but ugly as sin. Find a nicer way
     matches = list(map(scaffold_regex.search, subscaffold_names))
-    if all(m.group(1) == matches[0].group(1) for m in matches):
-        prefix = matches[0].group(1)
-        suffix = "p".join([m.group(2) for m in matches])
+    if all(
+        cast(Match, m).group(1) == cast(Match, matches[0]).group(1) for m in matches
+    ):
+        prefix = cast(Match, matches[0]).group(1)
+        suffix = "p".join([cast(Match, m).group(2) for m in matches])
         return "{}_{}".format(prefix, suffix)
     return "p".join(subscaffold_names)
 
 
 def join_scaffolds(
-    superscaffold_rows, gap_size=500, gap_type="scaffold", gap_evidence="na", name=None
-):
+    superscaffold_rows: List[List[AgpRow]],
+    gap_size: int = 500,
+    gap_type: str = "scaffold",
+    gap_evidence: str = "na",
+    name: str = None,
+) -> List[AgpRow]:
     """
     Transforms agp rows from multiple scaffolds into agp rows for a
     single superscaffold containing all the given scaffolds in the
@@ -75,20 +83,19 @@ def join_scaffolds(
     using this function.
 
     Args:
-        superscaffold_rows (list(list(AgpRow)): a list of lists of agp
-            rows. Each sub-list is a list of all rows in a single
-            scaffold. These scaffolds will be joined in the order given
-        gap_size (int): length of the new gaps created by joining
-            scaffolds together
-        gap_type (str): what to call the new gaps in the agp file
-        gap_evidence (str): evidence type for linkage across gap
-        name (str): name of new superscaffold. If None, this function
-            will come up with a name based on the names of subscaffolds
-            contained by this superscaffold
+        superscaffold_rows: a list of lists of agp rows. Each sub-list is a
+            list of all rows in a single scaffold. These scaffolds will be
+            joined in the order given
+        gap_size: length of the new gaps created by joining scaffolds
+            together
+        gap_type: what to call the new gaps in the agp file
+        gap_evidence: evidence type for linkage across gap
+        name: name of new superscaffold. If None, this function will come
+            up with a name based on the names of subscaffolds contained by
+            this superscaffold
 
     Returns:
-        agp_rows (list(AgpRow)): a list of AgpRow instances containing
-            the new scaffold specification.
+        a list of AgpRow instances containing the new scaffold specification
     """
     # make a nice name for the new superscaffold we are creating
     subscaffold_names = (s[0].object for s in superscaffold_rows)
@@ -138,14 +145,22 @@ def join_scaffolds(
     return outrows
 
 
-def run(joins_list, outfile, agp_infile, gap_size, gap_type, gap_evidence, names=None):
+def run(
+    joins_list: List[List[str]],
+    outfile: TextIO,
+    agp_infile: Iterator[Union[str, AgpRow]],
+    gap_size: int,
+    gap_type: str,
+    gap_evidence: str,
+    names: List[str] = None,
+):
     """
     Runs the 'join' module of agptools.
     """
     # first, make a dict mapping the names of all scaffolds that will
     # be modified to an empty list which will later contain all agp rows
     # of that scaffold.
-    scaffolds_to_join = {}
+    scaffolds_to_join: Dict[str, List[AgpRow]] = {}
     for name in (s.lstrip("+-") for s in chain.from_iterable(joins_list)):
         scaffolds_to_join[name] = []
 
@@ -177,8 +192,8 @@ def run(joins_list, outfile, agp_infile, gap_size, gap_type, gap_evidence, names
                 scaffold_rows.append(scaffolds_to_join[scaffold_name.lstrip("+")])
 
         # print out all the rows for this join group
-        name = None
+        this_name = None
         if names is not None:
-            name = names[i]
-        for row in join_scaffolds(scaffold_rows, gap_size, gap_type, name=name):
+            this_name = names[i]
+        for row in join_scaffolds(scaffold_rows, gap_size, gap_type, name=this_name):
             print(row, file=outfile)

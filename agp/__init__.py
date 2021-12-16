@@ -1,13 +1,14 @@
 """
 Functions for reading and writing AGP files.
 """
+from typing import Iterator, TextIO, Union
 
 
 class AgpFormatError(Exception):
     def __init__(self, line):
         self.line = line
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'Invalid AGP: "{}"'.format(self.line)
 
 
@@ -51,7 +52,7 @@ class AgpRow:
         except (ValueError, IndexError) as e:
             raise AgpFormatError(line) from e
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns the string representation of the AGP row as a line of
         text containing all the fields separated by tabs.
@@ -91,13 +92,13 @@ class AgpRow:
                 )
             )
 
-    def contains(self, position):
+    def contains(self, position: int) -> bool:
         """
         Returns true if position is within the bounds of this entry,
         false otherwise.
 
         Args:
-            position (int): a genomic position in base pairs
+            position: a genomic position in base pairs
         """
         return self.object_beg <= position and self.object_end >= position
 
@@ -105,14 +106,14 @@ class AgpRow:
 class GapRow(AgpRow):
     def __init__(
         self,
-        name,
-        beginning,
-        end,
-        part_number,
-        length=500,
-        gap_type="scaffold",
-        linkage="yes",
-        evidence="paired-end",
+        name: str,
+        beginning: int,
+        end: int,
+        part_number: int,
+        length: int = 500,
+        gap_type: str = "scaffold",
+        linkage: str = "yes",
+        evidence: str = "paired-end",
     ):
         self.object = name
         self.object_beg, self.object_end = beginning, end
@@ -122,12 +123,12 @@ class GapRow(AgpRow):
         self.linkage, self.linkage_evidence = linkage, evidence
 
 
-def is_string(var):
+def is_string(var) -> bool:
     """is var a string?"""
     return isinstance(var, str)
 
 
-def read(infile):
+def read(infile: TextIO) -> Iterator[Union[str, AgpRow]]:
     """
     Reads an AGP file, yielding rows as AgpRow instances and comment
     lines as plain strings.
@@ -139,5 +140,5 @@ def read(infile):
             yield AgpRow(line)
 
 
-def open_agp(filename):
+def open_agp(filename: str) -> Iterator[Union[str, AgpRow]]:
     return read(open(filename))

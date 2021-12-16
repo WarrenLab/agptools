@@ -3,7 +3,7 @@ Functions for splitting a scaffold into subscaffolds at gaps.
 """
 
 from copy import deepcopy
-from typing import Dict, List, TextIO, Iterator, Union
+from typing import Dict, Iterator, List, TextIO, Union
 
 from . import AgpRow
 
@@ -200,10 +200,10 @@ def split_scaffold(scaffold_rows, breakpoints):
 def run(
     breakpoints: Dict[str, List[int]],
     outfile: TextIO,
-    agp: Iterator[Union[str, AgpRow]],
+    agp_infile: Iterator[Union[str, AgpRow]],
 ):
     rows_this_scaffold: List[AgpRow] = []  # list of all agp rows in current scaffold
-    for row in agp:
+    for row in agp_infile:
         if isinstance(row, str):  # print out comment rows as-is
             print(row, file=outfile)
             continue

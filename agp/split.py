@@ -3,30 +3,51 @@ Functions for splitting a scaffold into subscaffolds at gaps.
 """
 
 from copy import deepcopy
+from typing import Dict, List, TextIO, Iterator, Union
+
+from . import AgpRow
 
 
-def breakpoints_type(filename):
+class ParsingError(Exception):
+    """Raised when breakpoints file is misformatted."""
+
+    pass
+
+
+def breakpoints_type(filename: str) -> Dict[str, List[int]]:
     """
     Argparse type function for breakpoints file: first column is the
     scaffold name; second column is a comma-separated list of
     locations within gaps where scaffold should be broken.
 
     Args:
-        filename (str): path to the breakpoints file
+        filename: path to the breakpoints file
 
     Returns:
-        breakpoints (dict): a dict mapping scaffold name to a list
+        breakpoints: a dict mapping scaffold name to a list
             of breakpoints (int) on that scaffold
+
+    Raises:
+        FileNotFoundError: if `filename` does not point to readable file
+        ParsingError: if there is an error in the input file's format or
+            content
     """
     breakpoints = {}
     with open(filename) as breakpoints_file:
-        for line in breakpoints_file:
-            splits = line.strip().split()
-            breakpoints[splits[0]] = list(map(int, splits[1].split(",")))
+        for i, line in enumerate(breakpoints_file):
+            splits = line.strip().split("\t")
+            try:
+                if splits[0] in breakpoints:
+                    raise ParsingError(
+                        f"{splits[0]} specified multiple times in breakpoints file"
+                    )
+                breakpoints[splits[0]] = list(map(int, splits[1].split(",")))
+            except (ValueError, IndexError):
+                raise ParsingError(f"Cannot parse line {i} of breakpoints: {line}")
     return breakpoints
 
 
-def unoffset_rows(new_scaffold_name, rows):
+def unoffset_rows(new_scaffold_name: str, rows: List[AgpRow]) -> List[AgpRow]:
     """
     Modifies some AGP rows so that they can be their own standalone
     scaffold. This requires changing their object names to a new
@@ -34,14 +55,14 @@ def unoffset_rows(new_scaffold_name, rows):
     that the first row starts with 1 and the rest follow.
 
     Args:
-        new_scaffold_name (str): name for the new scaffold which will
+        new_scaffold_name: name for the new scaffold which will
             replace all 'object' fields
-        rows (list(AgpRow)): rows to modify so that they function as a
+        rows: rows to modify so that they function as a
             standalone scaffold together. The first row will be used to
             calculate offsets.
 
     Returns:
-        out_rows (list(AgpRow)): input rows, but with all 'object'
+        out_rows: input rows, but with all 'object'
             fields replaced with new_scaffold_name, and all positions
             and part numbers modified so that the first row is the
             beginning of a new scaffold.
@@ -176,8 +197,12 @@ def split_scaffold(scaffold_rows, breakpoints):
     return out_rows
 
 
-def run(breakpoints, outfile, agp):
-    rows_this_scaffold = []  # list of all agp rows in current scaffold
+def run(
+    breakpoints: Dict[str, List[int]],
+    outfile: TextIO,
+    agp: Iterator[Union[str, AgpRow]],
+):
+    rows_this_scaffold: List[AgpRow] = []  # list of all agp rows in current scaffold
     for row in agp:
         if isinstance(row, str):  # print out comment rows as-is
             print(row, file=outfile)

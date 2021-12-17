@@ -4,6 +4,7 @@ import pytest
 
 from agp import open_agp
 from agp.join import (
+    BadSequenceNameError,
     JoinGroup,
     ScaffoldNotFoundError,
     ScaffoldUsedTwiceError,
@@ -49,12 +50,20 @@ def test_parse_named_joins(tmp_path):
         ("scaffold_1,-scaffold_2,+scaffold_3\n-scaffold_3,+scaffold_5"),
     ],
 )
-def test_parse_bad_joins(joins_txt, tmp_path):
+def test_scaffold_used_twice_error(joins_txt, tmp_path):
     with open(tmp_path / "joins.txt", "w") as joins_file:
         print(joins_txt, file=joins_file)
     with pytest.raises(ScaffoldUsedTwiceError) as error:
         joins_type(tmp_path / "joins.txt")
     assert "scaffold_3" in str(error.value)
+
+
+def test_bad_sequence_name_error(tmp_path):
+    with open(tmp_path / "joins.txt", "w") as joins_file:
+        print("scaffold_1,scaffold_2\tchr 1", file=joins_file)
+    with pytest.raises(BadSequenceNameError) as error:
+        joins_type(tmp_path / "joins.txt")
+    assert "chr 1" in str(error.value)
 
 
 @pytest.mark.parametrize(

@@ -13,6 +13,7 @@ from agp import AgpRow, GapRow
 from agp.flip import reverse_rows
 
 scaffold_regex = re.compile(r"([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)")
+sequence_name_regex = re.compile(r"^[a-zA-Z0-9.]+$")
 
 
 class ScaffoldNotFoundError(Exception):
@@ -25,6 +26,16 @@ class ScaffoldUsedTwiceError(Exception):
     """Scaffold(s) used more than once in joins file"""
 
     pass
+
+
+class BadSequenceNameError(Exception):
+    """Sequence name is not allowed"""
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def __str__(self) -> str:
+        return f"Bad scaffold name: '{self.name}'. Only [a-zA-Z0-9._] allowed."
 
 
 @dataclass
@@ -86,6 +97,8 @@ def joins_type(filename: str) -> List[JoinGroup]:
             columns = line.strip().split("\t")
             join_group = JoinGroup(columns[0].split(","))
             if len(columns) > 1:
+                if not sequence_name_regex.match(columns[1]):
+                    raise BadSequenceNameError(columns[1])
                 join_group.name = columns[1]
             joins.append(join_group)
 

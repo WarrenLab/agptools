@@ -66,11 +66,8 @@ def test_split_run(tmp_path):
             open_agp(agp_in_path),
         )
 
-    with (
-        open(tmp_path / "test_out.agp", "r") as test_out_agp,
-        open(
-            os.path.join(os.path.dirname(__file__), "data", "test_split.agp")
-        ) as correct_agp,
-    ):
+    with open(tmp_path / "test_out.agp", "r") as test_out_agp, open(
+        os.path.join(os.path.dirname(__file__), "data", "test_split.agp")
+    ) as correct_agp:
         for line1, line2 in zip(test_out_agp, correct_agp):
             assert line1 == line2

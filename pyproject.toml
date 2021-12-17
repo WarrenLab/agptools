@@ -1,9 +1,6 @@
-[tool.pylint.messages_control]
-disable = "C0330, C0326"
-
-[tool.pylint.format]
-max-line-length = "88"
-
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.isort]
+profile = "black"

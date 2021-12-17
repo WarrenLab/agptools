@@ -4,8 +4,11 @@ Functions for joining scaffolds
 
 import re
 from collections import Counter
+from collections.abc import Sequence
+from dataclasses import dataclass
 from itertools import chain
-from typing import Dict, Iterable, Iterator, List, Match, TextIO, Union, cast
+from typing import (Dict, Iterable, Iterator, List, Match, Optional, TextIO,
+                    Union, cast)
 
 from agp import AgpRow, GapRow
 from agp.flip import reverse_rows
@@ -14,14 +17,53 @@ scaffold_regex = re.compile(r"([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)")
 
 
 class ScaffoldNotFoundError(Exception):
+    """Scaffold in joins list not found in agp"""
+
     pass
 
 
 class ScaffoldUsedTwiceError(Exception):
+    """Scaffold(s) used more than once in joins file"""
+
     pass
 
 
-def joins_type(filename: str) -> List[List[str]]:
+@dataclass
+class JoinGroup(Sequence):
+    """A group of scaffolds to be joined together
+
+    This class represents a group of scaffolds that should be joined
+    together as specified in a joins file. Optionally, a group can be given
+    a name to use for the new superscaffold instead of using
+    `make_superscaffold_name()` to make one up based on the names of the
+    components. If accessed as a `Sequence`, it provides direct access to
+    the underlying list of scaffolds, e.g.,
+
+    >>> from agp.join import JoinGroup
+    >>> join_group = JoinGroup(["scaffold_1", "-scaffold_2", "+scaffold_3"])
+    >>> len(join_group)
+    3
+    >>> join_group[1]
+    '-scaffold_2'
+
+    Attributes:
+        scaffolds: a list of scaffolds to join together, in the correct
+            order. A scaffold name can be preceded by "+" or "-" to
+            indicate orientation; if none is specified, "+" is assumed.
+        name: a name to use for the new superscaffold in the output agp
+    """
+
+    scaffolds: List[str]
+    name: Optional[str] = None
+
+    def __getitem__(self, index) -> str:
+        return self.scaffolds[index]
+
+    def __len__(self) -> int:
+        return len(self.scaffolds)
+
+
+def joins_type(filename: str) -> List[JoinGroup]:
     """
     argparse type function for file listing scaffold joins
 
@@ -29,21 +71,24 @@ def joins_type(filename: str) -> List[List[str]]:
         filename: filename giving path to a file listing
             scaffolds to join. Each line should contain a comma-
             separated list of scaffolds to be joined into a single
-            scaffold.
+            scaffold. Optionally, the file can contain a second column
+            after a tab that gives each group a name.
 
     Returns:
-        list of join groups, where each join group is a list of the
-            scaffolds in that group. Scaffold names may have "+" or "-"
-            before their name; that is the job of downstream code to handle
+        list of join groups. Scaffold names may have "+" or "-"
+            before their name; that is the job of downstream code to handle.
 
     Raises:
         ScaffoldUsedTwiceError: if a scaffold is used multiple times
     """
-    joins: List[List[str]] = []  # for list of joins to eventually return
+    joins: List[JoinGroup] = []
     with open(filename) as joins_file:
         for line in joins_file:
-            scaffolds = line.strip().split(",")
-            joins.append(scaffolds)
+            columns = line.strip().split("\t")
+            join_group = JoinGroup(columns[0].split(","))
+            if len(columns) > 1:
+                join_group.name = columns[1]
+            joins.append(join_group)
 
     # look for scaffolds used more than once
     scaffold_counts = Counter(s.lstrip("+-") for s in chain.from_iterable(joins))
@@ -65,7 +110,7 @@ def make_superscaffold_name(subscaffold_names: Iterable[str]) -> str:
     subscaffold names. If the subscaffold names are all in the format
     '[prefix]_[suffix]', where prefix is the same for all subscaffolds,
     then the superscaffold name is '[prefix]_[suffix1]p[suffix2]p[etc.]'
-    Otherwise, it the names of all scaffolds concatenated with 'p'.
+    Otherwise, it's the names of all scaffolds concatenated with 'p'.
 
     Args:
         subscaffold_names (list(str)): list of names of subscaffolds

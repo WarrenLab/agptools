@@ -7,8 +7,7 @@ from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass
 from itertools import chain
-from typing import (Dict, Iterable, Iterator, List, Match, Optional, TextIO,
-                    Union, cast)
+from typing import Dict, Iterable, Iterator, List, Match, Optional, TextIO, Union, cast
 
 from agp import AgpRow, GapRow
 from agp.flip import reverse_rows
@@ -122,12 +121,13 @@ def make_superscaffold_name(subscaffold_names: Iterable[str]) -> str:
     """
     # TODO this casting is necessary but ugly as sin. Find a nicer way
     matches = list(map(scaffold_regex.search, subscaffold_names))
-    if all(
-        cast(Match, m).group(1) == cast(Match, matches[0]).group(1) for m in matches
-    ):
-        prefix = cast(Match, matches[0]).group(1)
-        suffix = "p".join([cast(Match, m).group(2) for m in matches])
-        return "{}_{}".format(prefix, suffix)
+    if all(matches):
+        if all(
+            cast(Match, m).group(1) == cast(Match, matches[0]).group(1) for m in matches
+        ):
+            prefix = cast(Match, matches[0]).group(1)
+            suffix = "p".join([cast(Match, m).group(2) for m in matches])
+            return "{}_{}".format(prefix, suffix)
     return "p".join(subscaffold_names)
 
 

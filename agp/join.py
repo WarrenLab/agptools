@@ -3,6 +3,7 @@ Functions for joining scaffolds
 """
 
 import re
+from collections import Counter
 from itertools import chain
 from typing import Dict, Iterable, Iterator, List, Match, TextIO, Union, cast
 
@@ -16,24 +17,40 @@ class ScaffoldNotFoundError(Exception):
     pass
 
 
+class ScaffoldUsedTwiceError(Exception):
+    pass
+
+
 def joins_type(filename: str) -> List[List[str]]:
     """
     argparse type function for file listing scaffold joins
 
     Args:
-        filename (str): filename giving path to a file listing
+        filename: filename giving path to a file listing
             scaffolds to join. Each line should contain a comma-
             separated list of scaffolds to be joined into a single
             scaffold.
 
     Returns:
-        joins (list(list(str))): list of join groups, where each join
-            group is a list of the scaffolds in that group
+        list of join groups, where each join group is a list of the
+            scaffolds in that group. Scaffold names may have "+" or "-"
+            before their name; that is the job of downstream code to handle
+
+    Raises:
+        ScaffoldUsedTwiceError: if a scaffold is used multiple times
     """
-    joins = []
+    joins: List[List[str]] = []  # for list of joins to eventually return
     with open(filename) as joins_file:
         for line in joins_file:
-            joins.append(line.strip().split(","))
+            scaffolds = line.strip().split(",")
+            joins.append(scaffolds)
+
+    # look for scaffolds used more than once
+    scaffold_counts = Counter(s.lstrip("+-") for s in chain.from_iterable(joins))
+    reused_scaffolds = [scaf for scaf, count in scaffold_counts.items() if count > 1]
+    if reused_scaffolds:
+        raise ScaffoldUsedTwiceError(f"Scaffolds used 2+ times: {reused_scaffolds}")
+
     return joins
 
 

@@ -67,6 +67,56 @@ scaffold_16  21066864  21807834  15  W  tig00183148 1    740971  +
 ```
 It contains eight contigs (and seven gaps, naturally).
 
+## flip
+The flip command reverse complements a segment of a scaffold. The use case for
+this is the scaffolder putting piece of a scaffold in the wrong orientation.
+
+The required arguments for the flip command are a list of flips to make and the
+input agp you want to modify. The list of flips has three columns:
+1. The name of the scaffold you want to flip a piece of
+2. The beginning position in base pairs, in scaffold coordinates, of the piece
+   you want to flip.
+3. The end position in base pairs, in scaffold coordinates, of the piece you
+   want to flip.
+
+Both coordinates are in the usual DNA range format (i.e., "1-100" takes
+everything from the first base of the sequence to the 100th base of the
+sequence, including the first and 100th base). The begin coordinate must be
+at the beginning of a component and the end coordinate must be at the end of
+a component. To do something more complicated, like reverse complement only
+part of a contig, use the split and join modules instead.
+
+Here is an example flips file:
+```
+scaffold_16   1        1973201
+scaffold_16   11764764 21066363
+```
+
+Here is the command you would use to perform these flips on the example file
+shown in the introduction:
+```bash
+agptools flip flips.tsv test_in.agp > test_flip.agp
+```
+
+And here is the output:
+```
+scaffold_16  1         876236    1    W   tig00001012 1    876236      -
+scaffold_16  876237    876736    2    N   500     scaffold        yes     na
+scaffold_16  876737    1973201   3    W   tig00005080 1    1096465     +
+scaffold_16  1973202   1973701   4    N   500     scaffold        yes     na
+scaffold_16  1973702   4258994   5    W   tig00182876 1    2285293     -
+scaffold_16  4258995   4259494   6    N   500     scaffold        yes     na
+scaffold_16  4259495   11764263  7    W   tig00000113 1    7504769     +
+scaffold_16  11764264  11764763  8    N   500     scaffold        yes     na
+scaffold_16  11764764  14836566  9    W   tig00000080 1    3071803     +
+scaffold_16  14836567  14837066  10   N   500     scaffold        yes     na
+scaffold_16  14837067  19062621  11   W   tig00004933 1    4225555     +
+scaffold_16  19062622  19063121  12   N   500     scaffold        yes     na
+scaffold_16  19063122  21066363  13   W   tig00004962 1    2003242     +
+scaffold_16  21066364  21066863  14   N   500     scaffold        yes     na
+scaffold_16  21066864  21807834  15   W   tig00183148 1    740971      +
+```
+
 ## split
 The split module breaks a scaffold into multiple scaffolds. There are two
 common cases where this operation may be necessary:
@@ -159,6 +209,31 @@ scaffold_16.2p16.3p16.1 18645306 1864580    1   N   500 scaffold    yes na
 scaffold_16.2p16.3p16.1 18645806 1952204    1   W   tig00001012 1   876236 +
 scaffold_16.2p16.3p16.1 19522042 1952254    1   N   500 scaffold    yes na
 scaffold_16.2p16.3p16.1 19522542 2180783    1   W   tig00182876 1   2285293 -
+```
+
+You can also specify a new name to use instead of the "16.2p16.3p16.1" scheme.
+Add a column to the joins file after a tab giving the new name. For example,
+```
+scaffold_16.2,-scaffold_16.3,+scaffold_16.1       chr1
+```
+
+will result in
+```
+chr1   1        7504769    1   W   tig00000113 1   7504769 +
+chr1   7504770  7505269    2   N   500 scaffold    yes na
+chr1   7505270  9508511    3   W   tig00004962 1   2003242 -
+chr1   9508512  9509011    4   N   500 scaffold    yes na
+chr1   9509012  1373456    5   W   tig00004933 1   4225555 -
+chr1   13734567 1373506    6   N   500 scaffold    yes na
+chr1   13735067 1680686    7   W   tig00000080 1   3071803 -
+chr1   16806870 1680736    8   N   500 scaffold    yes na
+chr1   16807370 1754834    9   W   tig00183148 1   740971 -
+chr1   17548341 1754884    1   N   500 scaffold    yes na
+chr1   17548841 1864530    1   W   tig00005080 1   1096465 -
+chr1   18645306 1864580    1   N   500 scaffold    yes na
+chr1   18645806 1952204    1   W   tig00001012 1   876236 +
+chr1   19522042 1952254    1   N   500 scaffold    yes na
+chr1   19522542 2180783    1   W   tig00182876 1   2285293 -
 ```
 
 [agp]: https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/

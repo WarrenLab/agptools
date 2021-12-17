@@ -1,11 +1,11 @@
 import pytest
+
 from agp.join import (
     JoinGroup,
     ScaffoldNotFoundError,
     ScaffoldUsedTwiceError,
     joins_type,
     make_superscaffold_name,
-    renaming_type,
     run,
 )
 
@@ -52,10 +52,6 @@ def test_parse_bad_joins(joins_txt, tmp_path):
     with pytest.raises(ScaffoldUsedTwiceError) as error:
         joins_type(tmp_path / "joins.txt")
     assert "scaffold_3" in str(error.value)
-
-
-def test_parse_renaming():
-    pass
 
 
 @pytest.mark.parametrize(

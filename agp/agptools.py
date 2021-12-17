@@ -74,13 +74,6 @@ def parse_args():
         "-e", "--gap-evidence", default="na", help="evidence type for gaps [na]"
     )
     join_parser.add_argument(
-        "-r",
-        "--renaming-file",
-        type=join.renaming_type,
-        help="file containing names of new objects to "
-        "use, instead of making up names, one per line",
-    )
-    join_parser.add_argument(
         "-o",
         "--outfile",
         type=argparse.FileType("w"),

@@ -98,11 +98,6 @@ def joins_type(filename: str) -> List[JoinGroup]:
     return joins
 
 
-def renaming_type(filename: str) -> List[str]:
-    with open(filename) as renaming_file:
-        return list(map(str.strip, renaming_file))
-
-
 def make_superscaffold_name(subscaffold_names: Iterable[str]) -> str:
     """
     Comes up with a nice superscaffold name based on the given

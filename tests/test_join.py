@@ -1,5 +1,8 @@
+from os.path import dirname, join
+
 import pytest
 
+from agp import open_agp
 from agp.join import (
     JoinGroup,
     ScaffoldNotFoundError,
@@ -66,9 +69,40 @@ def test_make_superscaffold_name(old_names, new_name):
     assert make_superscaffold_name(old_names) == new_name
 
 
+# TODO would be nice to implement, but not all that important
 def test_join_scaffolds():
     pass
 
 
-def test_run_join():
-    pass
+@pytest.mark.parametrize(
+    "join_txt, correct_agp_filename",
+    [
+        ("scaffold_17,-scaffold_16", "test_join_1.agp"),
+        ("+scaffold_18,-scaffold_16\n-scaffold_17\tchr2", "test_join_2.agp"),
+        ("-scaffold_16,+scaffold_17\tchr2\n-scaffold_18", "test_join_3.agp"),
+    ],
+)
+def test_run_join(join_txt, correct_agp_filename, tmp_path):
+    with open(tmp_path / "joins.txt", "w") as joins_file:
+        print(join_txt, file=joins_file)
+
+    agp_in_path = join(dirname(__file__), "data", "test.agp")
+    with open(tmp_path / "test_out.agp", "w") as outfile:
+        run(joins_type(tmp_path / "joins.txt"), outfile, open_agp(agp_in_path))
+
+    with open(tmp_path / "test_out.agp", "r") as test_agp, open(
+        join(dirname(__file__), "data", correct_agp_filename)
+    ) as correct_agp:
+        for line1, line2 in zip(test_agp, correct_agp):
+            assert line1 == line2
+
+
+def test_scaffold_not_found(tmp_path):
+    with open(tmp_path / "joins.txt", "w") as joins_file:
+        print("scaffold_10,scaffold_17", file=joins_file)
+
+    agp_in_path = join(dirname(__file__), "data", "test.agp")
+    with pytest.raises(ScaffoldNotFoundError) as error:
+        with open(tmp_path / "test_out.agp", "w") as outfile:
+            run(joins_type(tmp_path / "joins.txt"), outfile, open_agp(agp_in_path))
+    assert "scaffold_10" in str(error.value)

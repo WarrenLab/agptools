@@ -203,13 +203,12 @@ def join_scaffolds(
 
 
 def run(
-    joins_list: List[List[str]],
+    joins_list: List[JoinGroup],
     outfile: TextIO,
     agp_infile: Iterator[Union[str, AgpRow]],
-    gap_size: int,
-    gap_type: str,
-    gap_evidence: str,
-    names: List[str] = None,
+    gap_size: int = 500,
+    gap_type: str = "scaffold",
+    gap_evidence: str = "na",
 ):
     """
     Runs the 'join' module of agptools.
@@ -249,8 +248,7 @@ def run(
                 scaffold_rows.append(scaffolds_to_join[scaffold_name.lstrip("+")])
 
         # print out all the rows for this join group
-        this_name = None
-        if names is not None:
-            this_name = names[i]
-        for row in join_scaffolds(scaffold_rows, gap_size, gap_type, name=this_name):
+        for row in join_scaffolds(
+            scaffold_rows, gap_size, gap_type, name=join_group.name
+        ):
             print(row, file=outfile)

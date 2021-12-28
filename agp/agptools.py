@@ -105,7 +105,6 @@ def parse_args():
             a.gap_size,
             a.gap_type,
             a.gap_evidence,
-            names=a.renaming_file,
         )
     )
 

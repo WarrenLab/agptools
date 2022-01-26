@@ -50,11 +50,15 @@ class BedRange:
     """Start position of the bed range"""
     end: Optional[int] = None
     """End position of the bed range"""
+    strand: Optional[str] = None
+    """Strand of the bed range (either '+' or '-')"""
 
     def __str__(self) -> str:
         fields: List[Union[str, int]] = [self.chrom]
         if self.start and self.end:
             fields += [self.start, self.end]
+            if self.strand:
+                fields += [self.strand]
         return "\t".join(map(str, fields))
 
 
@@ -83,14 +87,23 @@ def read(bedfile: TextIO) -> Iterator[BedRange]:
     """
     for i, line in enumerate(bedfile):
         splits = line.strip().split("\t")
-        if len(splits) == 1:
-            yield BedRange(splits[0])
-        else:
-            try:
+        try:
+            if len(splits) == 1:
+                yield BedRange(splits[0])
+            elif len(splits) == 2:
+                raise ParsingError(f"Line {i+1} of bed misformatted.")
+            elif len(splits) == 3:
                 yield BedRange(
                     splits[0],
                     start=int(splits[1]),
                     end=int(splits[2]),
                 )
-            except (ValueError, IndexError):
-                raise ParsingError(f"Line {i+1} of bed misformatted.")
+            else:
+                yield BedRange(
+                    splits[0],
+                    start=int(splits[1]),
+                    end=int(splits[2]),
+                    strand=splits[3],
+                )
+        except (ValueError, IndexError):
+            raise ParsingError(f"Line {i+1} of bed misformatted.")

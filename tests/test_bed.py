@@ -8,7 +8,7 @@ from agp.bed import ParsingError, read
 def test_read_bed():
     bed_text = (
         "scaffold_11\t1\t68766634\n"
-        "scaffold_11\t68767135\t88214406\n"
+        "scaffold_11\t68767135\t88214406\t+\n"
         "scaffold_13\n"
         "scaffold_12\t70344537\t87137069"
     )
@@ -22,6 +22,7 @@ def test_read_bed():
             assert bed_range.chrom == "scaffold_11"
             assert bed_range.start == 68767135
             assert bed_range.end == 88214406
+            assert bed_range.strand == "+"
 
 
 def test_read_bad_bed():
@@ -35,3 +36,17 @@ def test_read_bad_bed():
             pass
 
     assert "Line 2" in str(error.value)
+
+
+@pytest.mark.parametrize(
+    "bed_line",
+    [
+        "scaffold_11\t68766634",
+        "scaffold_11\t68767135   88214406",
+        "scaffold_12\t703q4537\t87137069",
+    ],
+)
+def test_read_bad_bed_line(bed_line):
+    with pytest.raises(ParsingError):
+        for bed_range in read(StringIO(bed_line)):
+            pass

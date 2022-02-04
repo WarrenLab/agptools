@@ -11,14 +11,14 @@ import agp
 
 
 class NoSuchContigError(Exception):
-    def __init__(self, contig_name):
+    def __init__(self, contig_name: str):
         self.contig_name = contig_name
 
     def __str__(self):
         return 'FATAL: No contig named "{}" found.'.format(self.contig_name)
 
 
-def complement(base: str):
+def complement(base: str) -> str:
     complement_dict = {
         "A": "T",
         "a": "t",

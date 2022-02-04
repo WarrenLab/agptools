@@ -92,6 +92,35 @@ class AgpRow:
                 )
             )
 
+    def __eq__(self, other):
+        if self.is_gap != other.is_gap:
+            return False
+
+        common_field_equality = (
+            self.object == other.object
+            and self.object_beg == other.object_beg
+            and self.object_end == other.object_end
+            and self.part_number == other.part_number
+            and self.component_type == other.component_type
+        )
+
+        if self.is_gap:
+            return (
+                common_field_equality
+                and self.gap_length == other.gap_length
+                and self.gap_type == other.gap_type
+                and self.linkage == other.linkage
+                and self.linkage_evidence == other.linkage_evidence
+            )
+        else:
+            return (
+                common_field_equality
+                and self.component_id == other.component_id
+                and self.component_beg == other.component_beg
+                and self.component_end == other.component_end
+                and self.orientation == other.orientation
+            )
+
     def contains(self, position: int) -> bool:
         """
         Returns true if position is within the bounds of this entry,

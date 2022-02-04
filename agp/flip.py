@@ -5,20 +5,23 @@ flip, output a new AGP file with those chromosomes reoriented in
 reverse-complement.
 """
 
-from agp import bed
+from typing import IO, Iterable, List, Sequence, Tuple
+
+from agp import AgpRow, bed
+from agp.bed import BedRange
 
 
-def reverse_rows(rows):
+def reverse_rows(rows: List[AgpRow]) -> List[AgpRow]:
     """
     Given a list of AGP rows, return a new set of rows assembling
     the reverse complement of the input rows.
 
     Args:
-        rows (list): an ordered list of AgpRow objects
+        rows: an ordered list of AgpRow objects to reverse
 
     Returns:
-        reverse_chromosome_rows (list): the input, except in reverse
-            order, with the rows modified to be reverse-complements
+        the input, except in reverse order, with the rows modified to be
+        reverse-complements
     """
     # first, get the first and last part numbers and the start and end
     # position of the entire segment being flipped so we can count
@@ -48,21 +51,22 @@ def reverse_rows(rows):
     return reversed_rows
 
 
-def flip(agp_rows, ranges_to_flip):
+def flip(
+    agp_rows: Sequence[AgpRow], ranges_to_flip: Iterable[BedRange]
+) -> List[AgpRow]:
     """
     Reverse-complements all rows of an AGP file that fall within a list
     of ranges.
 
     Args:
-        agp_rows (Iterable(AgpRow)): all rows in an AGP file
-        ranges_to_flip (list(BedRange)): a list of ranges in the AGP
-            file to reverse-complement. Takes genomic (bed)
-            coordinates, not array coordinates.
+        agp_rows: all rows in an AGP file
+        ranges_to_flip: a list of ranges in the AGP file to
+            reverse-complement. Takes genomic (bed) coordinates, not
+            array coordinates.
 
     Returns:
-        agp_rows (list(AgpRow)): the same rows that were input, except
-            the rows in the specified range are now reverse-
-            complemented
+        agp_rows: the same rows that were input, except the rows in the
+            specified range are now reverse-complemented
     """
     # agp_rows is a generator, but we're going to have to store the
     # whole agp in memory
@@ -70,7 +74,7 @@ def flip(agp_rows, ranges_to_flip):
 
     for bed_range in ranges_to_flip:
         # list of tuples (i, agp_row) of rows in bed_range
-        rows_to_reverse = []
+        rows_to_reverse: List[Tuple[int, AgpRow]] = []
         for i, row in enumerate(agp_rows):
             if not isinstance(row, str) and row.object == bed_range.chrom:
                 # if no range in seq specified, flip the whole sequence
@@ -84,13 +88,17 @@ def flip(agp_rows, ranges_to_flip):
                     rows_to_reverse.append((i, row))
                 # check for bad ranges (i.e., ones that only partially
                 # contain a component)
-                elif row.contains(bed_range.start) or row.contains(bed_range.end):
+                elif (bed_range.start and bed_range.end) and (
+                    row.contains(bed_range.start) or row.contains(bed_range.end)
+                ):
                     raise bed.BadRangeError(bed_range)
 
         # unzip and flip those rows we've collected
         if len(rows_to_reverse) == 0:
             raise bed.EmptyRangeError(bed_range)
-        indices, rows = map(list, zip(*rows_to_reverse))
+        unzipped = list(zip(*rows_to_reverse))
+        indices: List[int] = list(unzipped[0])
+        rows: List[AgpRow] = list(unzipped[1])
         reversed_rows = reverse_rows(rows)
 
         # replace the original rows with the reversed rows
@@ -100,6 +108,6 @@ def flip(agp_rows, ranges_to_flip):
     return agp_rows
 
 
-def run(segments_to_flip, outfile, agp_rows):
+def run(segments_to_flip: Sequence[BedRange], outfile: IO, agp_rows: Sequence[AgpRow]):
     for row in flip(agp_rows, segments_to_flip):
         print(row, file=outfile)

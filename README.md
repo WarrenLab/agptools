@@ -236,5 +236,22 @@ chr1   19522042 1952254    1   N   500 scaffold    yes na
 chr1   19522542 2180783    1   W   tig00182876 1   2285293 -
 ```
 
+## assemble
+Once you've got your _final_ final agp, you probably want to create a fasta of
+these nice new corrected scaffolds. The `assemble` module takes a fasta file
+containing the original contigs and an agp of how you want to assemble these
+contigs into scaffolds, and outputs a fasta of the assembled scaffolds. For
+example,
+```bash
+agptools assemble contigs.fa corrected_scaffolds.agp > corrected_scaffolds.fa
+```
+Please note that if using SALSA as your scaffolder, it makes some breaks to
+input contigs based on the Hi-C data, and then gives the pieces different names
+(e.g., "contig1" to "contig1\_1" and "contig1\_2"), so you should use the fasta
+containing broken contigs as the contigs argument to `assemble` rather than the
+actual original contigs you started out with. This file is called
+`assembly.clean.fasta` and lives in the same directory as the rest of the SALSA
+output.
+
 [agp]: https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/
 [salsa]: https://github.com/marbl/SALSA

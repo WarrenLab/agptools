@@ -1,9 +1,10 @@
+from os import devnull
 from os.path import dirname, join
 
 import pytest
 import screed
 
-from agp import open_agp
+from agp import AgpRow, open_agp
 from agp.assemble import NoSuchContigError, reverse_complement, run
 
 
@@ -32,5 +33,16 @@ def test_reverse_complement():
 
 
 def test_no_such_contig():
-    with pytest.raises(NoSuchContigError):
-        raise NoSuchContigError("blah")
+    agp_rows = [
+        AgpRow("scaffold_18\t1930402\t2636956\t9\tW\ttig123\t1\t706555\t+"),
+    ]
+    with (
+        pytest.raises(NoSuchContigError) as err,
+        screed.open(
+            join(dirname(__file__), "data", "broken_contigs.fa")
+        ) as contigs_fasta,
+        open(devnull, "w") as outfile,
+    ):
+        run(contigs_fasta, outfile, agp_rows)
+
+    assert "tig123" in str(err.value)

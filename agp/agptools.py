@@ -9,7 +9,7 @@ import sys
 import screed
 
 import agp
-from agp import assemble, bed, compose, flip, join, split, transform
+from agp import assemble, bed, compose, flip, join, remove, split, transform
 
 
 def parse_args():
@@ -141,6 +141,33 @@ def parse_args():
     )
     flip_parser.set_defaults(
         func=lambda a: flip.run(a.segments_to_flip, a.outfile, a.agp)
+    )
+
+    remove_parser = subparsers.add_parser(
+        "remove", help="remove scaffolds from the assembly"
+    )
+    remove_parser.add_argument(
+        "-o",
+        "--outfile",
+        type=argparse.FileType("w"),
+        nargs="?",
+        help="where to write output AGP [STDOUT]",
+        default=sys.stdout,
+    )
+    remove_parser.add_argument(
+        "scaffolds_to_remove",
+        type=remove.scaffolds_list_type,
+        help="list of scaffolds to remove, one per line",
+    )
+    remove_parser.add_argument(
+        "agp",
+        nargs="?",
+        type=agp.open_agp,
+        help="AGP file to modify [STDIN]",
+        default=agp.read(sys.stdin),
+    )
+    remove_parser.set_defaults(
+        func=lambda a: remove.run(a.scaffolds_to_remove, a.outfile, a.agp)
     )
 
     # --- 'assemble' command options ---

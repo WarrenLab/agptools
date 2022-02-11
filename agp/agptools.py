@@ -9,7 +9,7 @@ import sys
 import screed
 
 import agp
-from agp import assemble, bed, compose, flip, join, remove, split, transform
+from agp import assemble, bed, compose, flip, join, remove, rename, split, transform
 
 
 def parse_args():
@@ -168,6 +168,35 @@ def parse_args():
     )
     remove_parser.set_defaults(
         func=lambda a: remove.run(a.scaffolds_to_remove, a.outfile, a.agp)
+    )
+
+    rename_parser = subparsers.add_parser(
+        "rename",
+        help="rename scaffolds",
+        description="Given a list of name changes, rename scaffolds accordingly",
+    )
+    rename_parser.add_argument(
+        "-o",
+        "--outfile",
+        type=argparse.FileType("w"),
+        nargs="?",
+        help="where to write output AGP [STDOUT]",
+        default=sys.stdout,
+    )
+    rename_parser.add_argument(
+        "renaming_file",
+        type=rename.renaming_file_type,
+        help="tsv containing columns current name, new name, and optional orientation",
+    )
+    rename_parser.add_argument(
+        "agp",
+        nargs="?",
+        type=agp.open_agp,
+        help="AGP file to modify [STDIN]",
+        default=agp.read(sys.stdin),
+    )
+    rename_parser.set_defaults(
+        func=lambda a: rename.run(a.renaming_file, a.outfile, a.agp)
     )
 
     # --- 'assemble' command options ---

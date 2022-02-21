@@ -1,6 +1,8 @@
 # agptools
 Tools for working with agp files
 
+Full documentation at [readthedocs][readthedocs].
+
 ## Introduction
 The [AGP][agp] format is a tab-separated table format describing how components
 of a genome assembly fit together. NCBI accepts assemblies for submission in
@@ -38,3 +40,7 @@ git clone https://github.com/esrice/agptools.git
 cd agptools
 pip install .
 ```
+
+[agp]: https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/
+[salsa]: https://github.com/marbl/SALSA
+[readthedocs]: https://agptools.readthedocs.io/

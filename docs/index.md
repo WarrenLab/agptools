@@ -1,4 +1,5 @@
 # agptools
+
 Tools for working with agp files
 
 ## Introduction
@@ -23,12 +24,7 @@ that contig and changing the character in the orientation column from '+' to
 '-'.
 
 agptools is a suite of scripts for performing edits to an AGP file during this
-manual curation stage of genome assembly. It contains modules for operations
-you might want to perform on an agp file, like splitting a contig or scaffold
-into multiple pieces, joining various scaffolds together into a superscaffold,
-reverse-complementing a piece of a scaffold, transforming a bed file from
-contig into scaffold coordinates, and removing or renaming scaffolds. Each of
-these use cases is explained in depth in the manual.
+manual curation stage of genome assembly.
 
 ## Installation
 I'll get this on PyPI soon so that you can install this with one command
@@ -38,3 +34,28 @@ git clone https://github.com/esrice/agptools.git
 cd agptools
 pip install .
 ```
+
+## Commands
+agptools contains modules for the following operations:
+
+* `split`: given one or more breakpoint coordinates, split a scaffold into two or
+  more scaffolds
+* `join`: given an ordered list of scaffolds and their desired orientations, join
+  them into a single super-scaffold (or even a chromosome)
+* `flip`: given two coordinates on a scaffold, reverse complement everything
+  between these two coordinates
+* `assemble`: given an AGP file and a fasta file containing the sequences of its
+  components (e.g., contigs), output a fasta file containing the sequences of
+  the components assembled into objects (e.g., scaffolds or chromosomes) as
+  specified by the AGP file
+* `rename`: rename scaffolds
+* `remove`: remove scaffolds that you don't want in the final assembly
+* `transform`: transform a bed file from contig coordinates to scaffold
+  coordinates
+
+Full documentation for each of them is available on the [commands](commands.md)
+page.
+
+[agp]: https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/
+[salsa]: https://github.com/marbl/SALSA
+

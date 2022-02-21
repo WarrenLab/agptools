@@ -1,0 +1,10 @@
+site_name: agptools
+nav:
+  - Home: index.md
+  - Commands: commands.md
+  - API reference: api.md
+theme: readthedocs
+plugins:
+  - mkdocstrings:
+      watch:
+        - agp/

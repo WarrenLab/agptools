@@ -13,7 +13,7 @@ from agp import AgpRow, GapRow
 from agp.flip import reverse_rows
 
 scaffold_regex = re.compile(r"([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)")
-sequence_name_regex = re.compile(r"^[a-zA-Z0-9.]+$")
+sequence_name_regex = re.compile(r"^[a-zA-Z0-9._]+$")
 
 
 class ScaffoldNotFoundError(Exception):

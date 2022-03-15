@@ -1,10 +1,10 @@
-"""
-Functions for reading and writing AGP files.
-"""
+"""Functions for reading and writing AGP files."""
 from typing import Iterator, TextIO, Union
 
 
 class AgpFormatError(Exception):
+    """Invalidly formatted AGP"""
+
     def __init__(self, line):
         self.line = line
 
@@ -13,7 +13,8 @@ class AgpFormatError(Exception):
 
 
 class AgpRow:
-    """
+    """A single non-comment row of an AGP
+
     A single non-comment row of an AGP file. Because AGP is a weird
     kind of TSV where fields can have different meanings depending on
     the value of the component_type field, I'm representing this as a
@@ -24,10 +25,14 @@ class AgpRow:
     https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/
     """
 
-    def __init__(self, line):
-        """
+    def __init__(self, line: str):
+        """Creates a new instance of AgpRow
+
         Creates a new instance of AgpRow by parsing the given line of
         text.
+
+        Args:
+            line: a line of text in AGP format
         """
         try:
             splits = line.strip().split("\t")
@@ -122,12 +127,16 @@ class AgpRow:
             )
 
     def contains(self, position: int) -> bool:
-        """
-        Returns true if position is within the bounds of this entry,
-        false otherwise.
+        """Check whether a row contains a position
+
+        Determine whether this row contains a given coordinate.
 
         Args:
             position: a genomic position in base pairs
+
+        Returns:
+            true if position is within the bounds of this entry, false
+            otherwise
         """
         return self.object_beg <= position and self.object_end >= position
 
@@ -153,14 +162,31 @@ class GapRow(AgpRow):
 
 
 def is_string(var) -> bool:
-    """is var a string?"""
+    """Determine whether var is a string
+
+    Determine whether `var` is a string.
+
+    Args:
+        var: variable to check for stringiness
+
+    Returns:
+        true if `var` is a string, false otherwise
+    """
     return isinstance(var, str)
 
 
 def read(infile: TextIO) -> Iterator[Union[str, AgpRow]]:
-    """
-    Reads an AGP file, yielding rows as AgpRow instances and comment
+    """Read an AGP file
+
+    Read an AGP file, yielding rows as AgpRow instances and comment
     lines as plain strings.
+
+    Args:
+        infile: input file in AGP format
+
+    Yields:
+        each row as either a string containing the entire line for
+        comments, or an AgpRow for non-comment lines
     """
     for line in infile:
         if line.startswith("#"):
@@ -170,4 +196,14 @@ def read(infile: TextIO) -> Iterator[Union[str, AgpRow]]:
 
 
 def open_agp(filename: str) -> Iterator[Union[str, AgpRow]]:
+    """Open and read an AGP file
+
+    Open an AGP file from a path, and then parse it
+
+    Args:
+        filename: path to an AGP file to read
+
+    Returns:
+        an Iterator over the rows of the file
+    """
     return read(open(filename))

@@ -52,6 +52,8 @@ class BedRange:
     """End position of the bed range"""
     strand: Optional[str] = None
     """Strand of the bed range (either '+' or '-')"""
+    extra_fields: Optional[List[str]] = None
+    """Additional columns containing miscellaneous data"""
 
     def __str__(self) -> str:
         fields: List[Union[str, int]] = [self.chrom]
@@ -59,6 +61,8 @@ class BedRange:
             fields += [self.start, self.end]
             if self.strand:
                 fields += [self.strand]
+            if self.extra_fields:
+                fields += self.extra_fields
         return "\t".join(map(str, fields))
 
 
@@ -104,6 +108,7 @@ def read(bedfile: TextIO) -> Iterator[BedRange]:
                     start=int(splits[1]),
                     end=int(splits[2]),
                     strand=splits[3],
+                    extra_fields=splits[4:],
                 )
         except (ValueError, IndexError):
             raise ParsingError(f"Line {i+1} of bed misformatted.")

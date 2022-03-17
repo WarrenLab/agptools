@@ -112,8 +112,8 @@ def find_agp_row(
         raise NoSuchContigError(contig_name)
     for agp_row in contig_list:
         if (
-            agp_row.component_beg < coordinate_on_contig
-            and agp_row.component_end > coordinate_on_contig
+            agp_row.component_beg <= coordinate_on_contig
+            and agp_row.component_end >= coordinate_on_contig
         ):
             return agp_row
 

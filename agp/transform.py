@@ -125,8 +125,10 @@ def run(
 ):
     contig_dict = create_contig_dict(agp_in)
     for bed_row in bed_in:
-        if not (bed_row.start and bed_row.end):
-            raise UnsupportedOperationError("Transforming coordinateless bed row")
+        if bed_row.start is None or bed_row.end is None:
+            raise UnsupportedOperationError(
+                f"Transforming coordinateless bed row: {bed_row}"
+            )
         agp_row_start = find_agp_row(bed_row.chrom, bed_row.start, contig_dict)
         agp_row_end = find_agp_row(bed_row.chrom, bed_row.end, contig_dict)
         if agp_row_start.object == agp_row_end.object:

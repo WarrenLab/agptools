@@ -35,7 +35,10 @@ class BadOrientationError(Exception):
     pass
 
 
-def create_contig_dict(agp_in: Iterator[Union[str, AgpRow]]) -> dict[str, List[AgpRow]]:
+ContigDict = dict[str, List[AgpRow]]
+
+
+def create_contig_dict(agp_in: Iterator[Union[str, AgpRow]]) -> ContigDict:
     """
     Load the agp file into a dictionary mapping contig name to a list
     of rows in which that contig is the component_id.
@@ -47,7 +50,7 @@ def create_contig_dict(agp_in: Iterator[Union[str, AgpRow]]) -> dict[str, List[A
         a dict mapping contig name to a list of rows in which that
         contig is the component_id
     """
-    contig_dict: dict[str, List[AgpRow]] = defaultdict(list)
+    contig_dict: ContigDict = defaultdict(list)
     for row in (r for r in agp_in if isinstance(r, AgpRow) and not r.is_gap):
         contig_dict[row.component_id].append(row)
     return contig_dict
@@ -87,7 +90,7 @@ def transform_single_position(position: int, agp_row: AgpRow) -> int:
 
 
 def find_agp_row(
-    contig_name: str, coordinate_on_contig: int, contig_dict: dict[str, List[AgpRow]]
+    contig_name: str, coordinate_on_contig: int, contig_dict: ContigDict
 ) -> AgpRow:
     """Find the agp row containing a coordinate.
 
@@ -120,35 +123,58 @@ def find_agp_row(
     raise CoordinateNotFoundError(f"{contig_name}:{coordinate_on_contig}")
 
 
+def transform_bed_row(bed_row: BedRange, contig_dict: ContigDict) -> BedRange:
+    """Transform a bed row to scaffold coordinates
+
+    Transform a single row of a bed file from contig coordinates to
+    scaffold coordinates.
+
+    Args:
+        bed_row: the row to transform
+        contig_dict:
+            a dictionary mapping contig name to the agp row(s)
+            containing that contig
+
+    Returns:
+        the same bed row, but in scaffold coordinates now
+    """
+    if bed_row.start is None or bed_row.end is None:
+        raise UnsupportedOperationError(
+            f"Transforming coordinateless bed row: {bed_row}"
+        )
+
+    # retrieve the AGP rows containing the bed range's start and end points
+    agp_row_start = find_agp_row(bed_row.chrom, bed_row.start, contig_dict)
+    agp_row_end = find_agp_row(bed_row.chrom, bed_row.end, contig_dict)
+
+    # only transform bed ranges that are entirely within one scaffold
+    if agp_row_start.object == agp_row_end.object:
+        bed_row.chrom = agp_row_start.object
+        # transform the start and end positions of the bed range to the
+        # new coordinate system
+        bed_row.start, bed_row.end = sorted(
+            [
+                transform_single_position(bed_row.start, agp_row_start),
+                transform_single_position(bed_row.end, agp_row_end),
+            ]
+        )
+        # flip the orientation of the bed row, if necessary
+        if (
+            agp_row_start == agp_row_end
+            and bed_row.strand
+            and agp_row_start.orientation == "-"
+        ):
+            if bed_row.strand == "+":
+                bed_row.strand = "-"
+            else:
+                bed_row.strand = "+"
+
+    return bed_row
+
+
 def run(
     bed_in: Iterator[BedRange], agp_in: Iterator[Union[str, AgpRow]], bed_out: TextIO
 ):
     contig_dict = create_contig_dict(agp_in)
     for bed_row in bed_in:
-        if bed_row.start is None or bed_row.end is None:
-            raise UnsupportedOperationError(
-                f"Transforming coordinateless bed row: {bed_row}"
-            )
-        agp_row_start = find_agp_row(bed_row.chrom, bed_row.start, contig_dict)
-        agp_row_end = find_agp_row(bed_row.chrom, bed_row.end, contig_dict)
-        if agp_row_start.object == agp_row_end.object:
-            new_start, new_end = sorted(
-                [
-                    transform_single_position(bed_row.start, agp_row_start),
-                    transform_single_position(bed_row.end, agp_row_end),
-                ]
-            )
-            new_orientation = None
-            if agp_row_start == agp_row_end and bed_row.strand:
-                if agp_row_start.orientation == "+":
-                    new_orientation = bed_row.strand
-                else:
-                    if bed_row.strand == "+":
-                        new_orientation = "-"
-                    else:
-                        new_orientation = "+"
-
-            print(
-                BedRange(agp_row_start.object, new_start, new_end, new_orientation),
-                file=bed_out,
-            )
+        print(transform_bed_row(bed_row, contig_dict), file=bed_out)

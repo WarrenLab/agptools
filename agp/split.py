@@ -3,7 +3,7 @@ Functions for splitting a scaffold into subscaffolds at gaps.
 """
 
 from copy import deepcopy
-from typing import Dict, Iterator, List, TextIO, Union
+from typing import Dict, Iterable, Iterator, List, TextIO, Union
 
 from . import AgpRow
 
@@ -78,7 +78,7 @@ def unoffset_rows(new_scaffold_name: str, rows: List[AgpRow]) -> List[AgpRow]:
     return out_rows
 
 
-def split_contig(contig_row, breakpoints):
+def split_contig(contig_row: AgpRow, breakpoints: List[int]) -> List[AgpRow]:
     """
     Splits a single row containing a contig into multiple rows,
     each containing a piece of the contig.
@@ -92,12 +92,19 @@ def split_contig(contig_row, breakpoints):
      ['scaf', '868', '1000', '7', 'W', 'ctg', '368', '500', '+']]
 
     Args:
-        contig_row (AgpRow): a single row to be split
-        breakpoints (list(int)): positions where contig should be split,
+        contig_row: a single row to be split
+        breakpoints: positions where contig should be split,
             in object coordinates, *not* component coordinates. The left
             part of the split includes the breakpoint: e.g., splitting a
             contig of length 100 at 43 will make two new contigs: one
             from 1-43 and the other from 44-100.
+
+    Returns:
+        a list of rows of length len(breakpoints) + 1, where each row is
+        a piece of the contig after splitting. Note that while the new
+        coordinates are correct in the coordinates of the original
+        scaffold they came from, the object coordinates still need to be
+        offset to match the new scaffold they will end up in.
     """
     rows = [contig_row]
     for this_breakpoint in sorted(breakpoints):
@@ -123,7 +130,7 @@ def split_contig(contig_row, breakpoints):
     return rows
 
 
-def convert_rows(rows, subscaffold_counter):
+def convert_rows(rows: List[AgpRow], subscaffold_counter: int) -> List[AgpRow]:
     """
     Converts rows that are part of a scaffold into their own standalone
     scaffold. Changes the positions and part numbers so that the new
@@ -131,37 +138,38 @@ def convert_rows(rows, subscaffold_counter):
     scaffold, but with '.{subscaffold_counter}' at the end.
 
     Args:
-        rows (list(AgpRow)): rows to turn into their own scaffold.
-        subscaffold_counter (int): suffix to add to the old scaffold
+        rows: rows to turn into their own scaffold.
+        subscaffold_counter: suffix to add to the old scaffold
             name in order to turn it into the new scaffold name.
 
     Returns:
-        new_rows (list(AgpRow)): the input rows, but with object names,
-            positions, and part numbers changed so that they now
-            function as a standalone scaffold
+        the input rows, but with object names, positions, and part
+        numbers changed so that they now function as a standalone
+        scaffold
     """
     new_scaffold_name = "{}.{}".format(rows[0].object, subscaffold_counter)
     return unoffset_rows(new_scaffold_name, rows)
 
 
-def split_scaffold(scaffold_rows, breakpoints):
+def split_scaffold(
+    scaffold_rows: Iterable[AgpRow], breakpoints: List[int]
+) -> List[AgpRow]:
     """
     Splits a scaffold at specified breakpoints.
 
     Args:
-        scaffold_rows (list(AgpRow)): all the rows for a given scaffold
-            in an AGP file
-        breakpoints (list(int)): a list of locations where scaffold
-            should be broken. All locations are specified in genomic
-            coordinates and must be within the boundaries of a gap.
+        scaffold_rows: all the rows for a given scaffold in an AGP file
+        breakpoints: a list of locations where scaffold should be
+            broken. All locations are specified in genomic coordinates
+            and must be within the boundaries of a gap.
 
     Returns:
-        broken_rows (list(AgpRow)): rows of the input scaffold broken
+        broken_rows: rows of the input scaffold broken
             into len(breakpoints)+1 sub-scaffolds, with the gaps
             containing the breakpoints removed
     """
     out_rows = []
-    rows_this_subscaffold = []
+    rows_this_subscaffold: List[AgpRow] = []
     subscaffold_counter = 1
     for row in scaffold_rows:
         if any(map(row.contains, breakpoints)):
@@ -177,7 +185,7 @@ def split_scaffold(scaffold_rows, breakpoints):
             # break a contig into pieces
             else:
                 # split the contig into two or more rows
-                contig_rows = split_contig(row, filter(row.contains, breakpoints))
+                contig_rows = split_contig(row, list(filter(row.contains, breakpoints)))
 
                 # the first row goes at the end of the current scaffold
                 rows_this_subscaffold.append(contig_rows[0])

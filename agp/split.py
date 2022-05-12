@@ -68,13 +68,12 @@ def unoffset_rows(new_scaffold_name: str, rows: List[AgpRow]) -> List[AgpRow]:
             beginning of a new scaffold.
     """
     position_offset = rows[0].object_beg - 1
-    part_number_offset = rows[0].part_number - 1
     out_rows = []
-    for row in rows:
+    for i, row in enumerate(rows):
         row.object = new_scaffold_name
         row.object_beg -= position_offset
         row.object_end -= position_offset
-        row.part_number -= part_number_offset
+        row.part_number = i + 1
         out_rows.append(row)
     return out_rows
 
@@ -108,10 +107,17 @@ def split_contig(contig_row, breakpoints):
         left_part.object_end = this_breakpoint
         right_part.object_beg = this_breakpoint + 1
         right_part.part_number += 1
-        left_part.component_end = left_part.component_beg + (
-            this_breakpoint - left_part.object_beg
-        )
-        right_part.component_beg = left_part.component_end + 1
+
+        if contig_row.orientation == "+":
+            left_part.component_end = left_part.component_beg + (
+                this_breakpoint - left_part.object_beg
+            )
+            right_part.component_beg = left_part.component_end + 1
+        else:
+            left_part.component_beg = (
+                left_part.object_beg + left_part.component_end - this_breakpoint
+            )
+            right_part.component_end = left_part.component_beg - 1
 
         rows += [left_part, right_part]
     return rows

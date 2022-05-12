@@ -101,15 +101,15 @@ def split_contig(contig_row, breakpoints):
             from 1-43 and the other from 44-100.
     """
     rows = [contig_row]
-    for breakpoint in sorted(breakpoints):
+    for this_breakpoint in sorted(breakpoints):
         left_part = deepcopy(rows.pop())
         right_part = deepcopy(left_part)
 
-        left_part.object_end = breakpoint
-        right_part.object_beg = breakpoint + 1
+        left_part.object_end = this_breakpoint
+        right_part.object_beg = this_breakpoint + 1
         right_part.part_number += 1
         left_part.component_end = left_part.component_beg + (
-            breakpoint - left_part.object_beg
+            this_breakpoint - left_part.object_beg
         )
         right_part.component_beg = left_part.component_end + 1
 

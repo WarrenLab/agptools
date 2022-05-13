@@ -5,7 +5,7 @@ scaffold-based.
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Iterator, TextIO, Union
+from typing import Dict, Iterator, List, TextIO, Union
 
 from agp import AgpRow
 from agp.bed import BedRange
@@ -37,7 +37,7 @@ class BadOrientationError(Exception):
     pass
 
 
-ContigDict = dict[str, list[AgpRow]]
+ContigDict = Dict[str, List[AgpRow]]
 
 
 def create_contig_dict(agp_in: Iterator[Union[str, AgpRow]]) -> ContigDict:

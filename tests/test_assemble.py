@@ -32,13 +32,11 @@ def test_no_such_contig():
     agp_rows = [
         AgpRow("scaffold_18\t1930402\t2636956\t9\tW\ttig123\t1\t706555\t+"),
     ]
-    with (
-        pytest.raises(NoSuchContigError) as err,
-        screed.open(
+    with pytest.raises(NoSuchContigError) as err:
+        with screed.open(
             join(dirname(__file__), "data", "broken_contigs.fa")
-        ) as contigs_fasta,
-        open(devnull, "w") as outfile,
-    ):
-        run(contigs_fasta, outfile, agp_rows)
+        ) as contigs_fasta:
+            with open(devnull, "w") as outfile:
+                run(contigs_fasta, outfile, agp_rows)
 
     assert "tig123" in str(err.value)

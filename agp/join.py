@@ -14,6 +14,7 @@ from agp.flip import reverse_rows
 
 scaffold_regex = re.compile(r"([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)")
 sequence_name_regex = re.compile(r"^[a-zA-Z0-9._]+$")
+empty_line_regex = re.compile(r"^\s*$")
 
 
 class ScaffoldNotFoundError(Exception):
@@ -94,13 +95,14 @@ def joins_type(filename: str) -> List[JoinGroup]:
     joins: List[JoinGroup] = []
     with open(filename) as joins_file:
         for line in joins_file:
-            columns = line.strip().split("\t")
-            join_group = JoinGroup(columns[0].split(","))
-            if len(columns) > 1:
-                if not sequence_name_regex.match(columns[1]):
-                    raise BadSequenceNameError(columns[1])
-                join_group.name = columns[1]
-            joins.append(join_group)
+            if not empty_line_regex.match(line):
+                columns = line.strip().split("\t")
+                join_group = JoinGroup(columns[0].split(","))
+                if len(columns) > 1:
+                    if not sequence_name_regex.match(columns[1]):
+                        raise BadSequenceNameError(columns[1])
+                    join_group.name = columns[1]
+                joins.append(join_group)
 
     # look for scaffolds used more than once
     scaffold_counts = Counter(s.lstrip("+-") for s in chain.from_iterable(joins))

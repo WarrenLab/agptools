@@ -2,6 +2,7 @@
 Functions for splitting a scaffold into subscaffolds at gaps.
 """
 
+import re
 from copy import deepcopy
 from typing import Dict, Iterable, Iterator, List, TextIO, Union
 
@@ -12,6 +13,9 @@ class ParsingError(Exception):
     """Raised when breakpoints file is misformatted."""
 
     pass
+
+
+empty_line_regex = re.compile(r"^\s*$")
 
 
 def breakpoints_type(filename: str) -> Dict[str, List[int]]:
@@ -35,15 +39,16 @@ def breakpoints_type(filename: str) -> Dict[str, List[int]]:
     breakpoints = {}
     with open(filename) as breakpoints_file:
         for i, line in enumerate(breakpoints_file):
-            splits = line.strip().split("\t")
-            try:
-                if splits[0] in breakpoints:
-                    raise ParsingError(
-                        f"{splits[0]} specified multiple times in breakpoints file"
-                    )
-                breakpoints[splits[0]] = list(map(int, splits[1].split(",")))
-            except (ValueError, IndexError):
-                raise ParsingError(f"Cannot parse line {i} of breakpoints: {line}")
+            if not empty_line_regex.match(line):
+                splits = line.strip().split("\t")
+                try:
+                    if splits[0] in breakpoints:
+                        raise ParsingError(
+                            f"{splits[0]} specified multiple times in breakpoints file"
+                        )
+                    breakpoints[splits[0]] = list(map(int, splits[1].split(",")))
+                except (ValueError, IndexError):
+                    raise ParsingError(f"Cannot parse line {i} of breakpoints: {line}")
     return breakpoints
 
 

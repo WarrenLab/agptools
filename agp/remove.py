@@ -1,6 +1,9 @@
+import re
 from typing import IO, Sequence, Set
 
 from agp import AgpRow
+
+empty_line_regex = re.compile(r"^\s*$")
 
 
 class ScaffoldNotFoundError(Exception):
@@ -22,7 +25,8 @@ def scaffolds_list_type(filename: str) -> Set[str]:
     scaffolds: Set[str] = set()
     with open(filename) as scaffolds_list_file:
         for line in scaffolds_list_file:
-            scaffolds.add(line.strip())
+            if not empty_line_regex.match(line):
+                scaffolds.add(line.strip())
     return scaffolds
 
 

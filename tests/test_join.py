@@ -17,7 +17,7 @@ from agp.join import (
 def test_parse_joins(tmp_path):
     with open(tmp_path / "joins.txt", "w") as joins_file:
         print(
-            "scaffold_1,-scaffold_2,+scaffold_3\nscaffold_4,-scaffold_5",
+            "scaffold_1,-scaffold_2,+scaffold_3\nscaffold_4,-scaffold_5\n",
             file=joins_file,
         )
 
@@ -31,7 +31,7 @@ def test_parse_joins(tmp_path):
 def test_parse_named_joins(tmp_path):
     with open(tmp_path / "joins.txt", "w") as joins_file:
         print(
-            "scaffold_1,-scaffold_2\tchr1\nscaffold_4,-scaffold_5",
+            "scaffold_1,-scaffold_2\tchr1\nscaffold_4,-scaffold_5\n",
             file=joins_file,
         )
     joins = joins_type(tmp_path / "joins.txt")

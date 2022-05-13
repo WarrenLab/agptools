@@ -1,6 +1,7 @@
 """
 Functions for parsing bed files
 """
+import re
 from dataclasses import dataclass
 from typing import Iterator, List, Optional, TextIO, Union
 
@@ -66,6 +67,9 @@ class BedRange:
         return "\t".join(map(str, fields))
 
 
+empty_line_regex = re.compile(r"^\s*$")
+
+
 def open_bed(filename: str) -> Iterator[BedRange]:
     """Open and parse a bed file
 
@@ -90,25 +94,26 @@ def read(bedfile: TextIO) -> Iterator[BedRange]:
         an iterator that yields single lines of the file at a time
     """
     for i, line in enumerate(bedfile):
-        splits = line.strip().split("\t")
-        try:
-            if len(splits) == 1:
-                yield BedRange(splits[0])
-            elif len(splits) == 2:
+        if not empty_line_regex.match(line):
+            splits = line.strip().split("\t")
+            try:
+                if len(splits) == 1:
+                    yield BedRange(splits[0])
+                elif len(splits) == 2:
+                    raise ParsingError(f"Line {i+1} of bed misformatted.")
+                elif len(splits) == 3:
+                    yield BedRange(
+                        splits[0],
+                        start=int(splits[1]),
+                        end=int(splits[2]),
+                    )
+                else:
+                    yield BedRange(
+                        splits[0],
+                        start=int(splits[1]),
+                        end=int(splits[2]),
+                        strand=splits[3],
+                        extra_fields=splits[4:],
+                    )
+            except (ValueError, IndexError):
                 raise ParsingError(f"Line {i+1} of bed misformatted.")
-            elif len(splits) == 3:
-                yield BedRange(
-                    splits[0],
-                    start=int(splits[1]),
-                    end=int(splits[2]),
-                )
-            else:
-                yield BedRange(
-                    splits[0],
-                    start=int(splits[1]),
-                    end=int(splits[2]),
-                    strand=splits[3],
-                    extra_fields=splits[4:],
-                )
-        except (ValueError, IndexError):
-            raise ParsingError(f"Line {i+1} of bed misformatted.")

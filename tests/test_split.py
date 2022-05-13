@@ -10,7 +10,7 @@ def test_parse_breakpoints(tmp_path):
     """Test parsing a good breakpoints file"""
     with open(tmp_path / "test_breaks.tsv", "w") as breakpoints_file:
         print(
-            "scaffold_16\t4258995,21066364\nscaffold_17\t1234,5679",
+            "scaffold_16\t4258995,21066364\nscaffold_17\t1234,5679\n",
             file=breakpoints_file,
         )
 

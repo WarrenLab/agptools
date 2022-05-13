@@ -1,4 +1,5 @@
-from typing import Iterable, List, Mapping, Optional, Sequence, TextIO
+import re
+from typing import Iterable, List, Mapping, Sequence, TextIO
 
 from agp import AgpRow
 from agp.flip import reverse_rows
@@ -10,6 +11,9 @@ class FormatError(Exception):
 
 class ScaffoldNotFoundError(Exception):
     pass
+
+
+empty_line_regex = re.compile(r"^\s*$")
 
 
 def renaming_file_type(filename: str) -> dict[str, tuple[str, str]]:
@@ -31,19 +35,20 @@ def renaming_file_type(filename: str) -> dict[str, tuple[str, str]]:
     renaming_dict = {}
     with open(filename, "r") as renaming_file:
         for i, line in enumerate(renaming_file):
-            fields = line.strip().split("\t")
-            if len(fields) < 2:
-                raise FormatError(
-                    f"Line {i+1} of renaming file doesn't have enough columns."
-                )
-            if len(fields) == 2:  # default to + orientation
-                renaming_dict[fields[0]] = (fields[1], "+")
-            elif len(fields) >= 3:
-                if fields[2] not in ["+", "-"]:
+            if not empty_line_regex.match(line):
+                fields = line.strip().split("\t")
+                if len(fields) < 2:
                     raise FormatError(
-                        f"Line {i+1}: orientation column can only contain + or -"
+                        f"Line {i+1} of renaming file doesn't have enough columns."
                     )
-                renaming_dict[fields[0]] = (fields[1], fields[2])
+                if len(fields) == 2:  # default to + orientation
+                    renaming_dict[fields[0]] = (fields[1], "+")
+                elif len(fields) >= 3:
+                    if fields[2] not in ["+", "-"]:
+                        raise FormatError(
+                            f"Line {i+1}: orientation column can only contain + or -"
+                        )
+                    renaming_dict[fields[0]] = (fields[1], fields[2])
 
     return renaming_dict
 

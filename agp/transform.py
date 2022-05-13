@@ -2,8 +2,10 @@
 Functions for transforming genomic coordinates from contig-based to
 scaffold-based.
 """
+from __future__ import annotations
+
 from collections import defaultdict
-from typing import Iterator, List, TextIO, Union
+from typing import Iterator, TextIO, Union
 
 from agp import AgpRow
 from agp.bed import BedRange
@@ -35,7 +37,7 @@ class BadOrientationError(Exception):
     pass
 
 
-ContigDict = dict[str, List[AgpRow]]
+ContigDict = dict[str, list[AgpRow]]
 
 
 def create_contig_dict(agp_in: Iterator[Union[str, AgpRow]]) -> ContigDict:

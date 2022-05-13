@@ -2,6 +2,7 @@
 """
 Various tools for modifying and using agp files
 """
+from __future__ import annotations
 
 import argparse
 import sys

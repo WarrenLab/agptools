@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import re
-from typing import Iterable, List, Mapping, Sequence, TextIO
+from typing import Iterable, Mapping, Sequence, TextIO
 
 from agp import AgpRow
 from agp.flip import reverse_rows
@@ -55,7 +57,7 @@ def renaming_file_type(filename: str) -> dict[str, tuple[str, str]]:
 
 def rename_rows(
     rows_to_rename: Iterable[AgpRow], new_name, orientation
-) -> List[AgpRow]:
+) -> list[AgpRow]:
     """Rename a bunch of agp rows
 
     Rename a bunch of agp rows, and possibly reverse them too.
@@ -95,7 +97,7 @@ def run(
         outfile: file where agp output should be sent
         agp_rows: all input AGP rows
     """
-    rows_to_rename: List[AgpRow] = []
+    rows_to_rename: list[AgpRow] = []
     current_object = "none"  # can't use None because dict needs a string
     renamed_objects: set[str] = set()
     for row in agp_rows:

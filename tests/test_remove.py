@@ -23,9 +23,7 @@ def test_remove_scaffold_not_found_error(tmp_path):
         AgpRow("scaffold_19\t2636957\t2637456\t10\tN\t500\tscaffold\tyes\tna"),
         AgpRow("scaffold_20\t2637457\t3193955\t11\tW\ttig456\t1\t556499\t+"),
     ]
-    with (
-        pytest.raises(ScaffoldNotFoundError) as error,
-        open(tmp_path / "test.agp", "w") as outfile,
-    ):
-        run({"scaffold_21"}, outfile, agp_rows)
+    with pytest.raises(ScaffoldNotFoundError) as error:
+        with open(tmp_path / "test.agp", "w") as outfile:
+            run({"scaffold_21"}, outfile, agp_rows)
     assert "scaffold_21" in str(error.value)

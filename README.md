@@ -1,3 +1,5 @@
+[![Python package](https://github.com/WarrenLab/agptools/actions/workflows/python-package.yml/badge.svg)](https://github.com/WarrenLab/agptools/actions/workflows/python-package.yml)
+
 # agptools
 Tools for working with agp files
 

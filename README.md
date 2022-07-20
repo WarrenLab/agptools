@@ -1,7 +1,7 @@
 # agptools
 Tools for working with agp files
 
-Full documentation at [readthedocs][readthedocs].
+Full documentation at [github pages][ghpages].
 
 ## Introduction
 The [AGP][agp] format is a tab-separated table format describing how components
@@ -43,4 +43,4 @@ pip install .
 
 [agp]: https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/
 [salsa]: https://github.com/marbl/SALSA
-[readthedocs]: https://agptools.readthedocs.io/
+[ghpages]: https://warrenlab.github.io/agptools/

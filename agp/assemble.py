@@ -50,14 +50,15 @@ def print_fasta(name: str, sequence: str, outfile: IO, wrap: int = 60):
         outfile: where to write the sequence to
         wrap: the number of bases per line of sequence
 
-    Returns: the sequence in fasta format
-
-    >>> import sys
-    >>> print_fasta('chr1', 'ATCGACTGATCGACTGACTGACTACTG', outfile=sys.stdout, wrap=10)
-    >chr1
-    ATCGACTGAT
-    CGACTGACTG
-    ACTACTG
+    Examples:
+        >>> import sys
+        >>> print_fasta(
+        >>>    'chr1', 'ATCGACTGATCGACTGACTGACTACTG', outfile=sys.stdout, wrap=10
+        >>> )
+        >chr1
+        ATCGACTGAT
+        CGACTGACTG
+        ACTACTG
     """
     print(f">{name}", file=outfile)
     for start_pos in range(0, len(sequence), wrap):
@@ -74,8 +75,8 @@ def run(
 
     Args:
         contigs_fasta: fasta iterator in screed format containing contigs
-        outfile (file): file where scaffolds fasta should be written
-        agp (iterable): iterable returning agp.AgpRow objects, each
+        outfile: file where scaffolds fasta should be written
+        agp_rows: iterable returning agp.AgpRow objects, each
             containing a single row of the agp file
     """
     # unfortunately, the contigs fasta file I'm writing this for has

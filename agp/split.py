@@ -88,14 +88,6 @@ def split_contig(contig_row: AgpRow, breakpoints: List[int]) -> List[AgpRow]:
     Splits a single row containing a contig into multiple rows,
     each containing a piece of the contig.
 
-    >>> import agp
-    >>> r = agp.AgpRow('\\t'.join(map(str, ['scaf', 501, 1000, 5, 'W',
-    ...                                    'ctg', 1, 500, '+'])))
-    >>> [str(x).split('\\t') for x in split_contig(r, [750, 867])]
-    [['scaf', '501', '750', '5', 'W', 'ctg', '1', '250', '+'],
-     ['scaf', '751', '867', '6', 'W', 'ctg', '251', '367', '+'],
-     ['scaf', '868', '1000', '7', 'W', 'ctg', '368', '500', '+']]
-
     Args:
         contig_row: a single row to be split
         breakpoints: positions where contig should be split,
@@ -110,6 +102,15 @@ def split_contig(contig_row: AgpRow, breakpoints: List[int]) -> List[AgpRow]:
         coordinates are correct in the coordinates of the original
         scaffold they came from, the object coordinates still need to be
         offset to match the new scaffold they will end up in.
+
+    Examples:
+        >>> import agp
+        >>> r = agp.AgpRow('\\t'.join(map(str, ['scaf', 501, 1000, 5, 'W',
+        ...                                    'ctg', 1, 500, '+'])))
+        >>> [str(x).split('\\t') for x in split_contig(r, [750, 867])]
+        [['scaf', '501', '750', '5', 'W', 'ctg', '1', '250', '+'],
+         ['scaf', '751', '867', '6', 'W', 'ctg', '251', '367', '+'],
+         ['scaf', '868', '1000', '7', 'W', 'ctg', '368', '500', '+']]
     """
     rows = [contig_row]
     for this_breakpoint in sorted(breakpoints):

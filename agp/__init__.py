@@ -22,7 +22,7 @@ class AgpRow:
     something along those lines. See the NCBI documentation for more
     information:
 
-    https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/
+    <https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/>
     """
 
     def __init__(self, line: str):
@@ -136,7 +136,7 @@ class AgpRow:
 
         Returns:
             true if position is within the bounds of this entry, false
-            otherwise
+                otherwise
         """
         return self.object_beg <= position and self.object_end >= position
 

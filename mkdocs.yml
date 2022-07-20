@@ -3,8 +3,12 @@ nav:
   - Home: index.md
   - Commands: commands.md
   - API reference: api.md
-theme: readthedocs
+theme: material
 plugins:
   - mkdocstrings:
-      watch:
-        - agp/
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+watch:
+  - agp/

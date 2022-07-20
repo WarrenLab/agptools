@@ -56,7 +56,7 @@ def renaming_file_type(filename: str) -> dict[str, tuple[str, str]]:
 
 
 def rename_rows(
-    rows_to_rename: Iterable[AgpRow], new_name, orientation
+    rows_to_rename: Iterable[AgpRow], new_name: str, orientation: str
 ) -> list[AgpRow]:
     """Rename a bunch of agp rows
 

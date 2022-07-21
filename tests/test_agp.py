@@ -42,8 +42,23 @@ def test_parse_contig_row():
 
 def test_parse_misformatted_row():
     """Test that a misformatted row raises the correct error."""
-    with pytest.raises(agp.AgpFormatError):
+    with pytest.raises(agp.AgpFormatError) as excinfo:
         agp.AgpRow("scaffold_18\t8679q231\t8679730\t28\tN\t500\tscaffold\tyes\tna")
+    assert "Invalid AGP:" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "row1_string, row2_string, equality",
+    [
+        (gap_row_string, gap_row_string, True),
+        (contig_row_string, contig_row_string, True),
+        (gap_row_string, contig_row_string, False),
+    ],
+)
+def test_row_equality(row1_string, row2_string, equality):
+    """Test that row equality comparison function works as expected"""
+    row1, row2 = agp.AgpRow(row1_string), agp.AgpRow(row2_string)
+    assert (row1 == row2) == equality
 
 
 def test_gap_row_to_str():

@@ -18,6 +18,10 @@ class NoSuchContigError(Exception):
         return 'FATAL: No contig named "{}" found.'.format(self.contig_name)
 
 
+class EmptyAgpError(Exception):
+    pass
+
+
 def complement(base: str) -> str:
     complement_dict = {
         "A": "T",
@@ -99,7 +103,7 @@ def run(
             current_chrom = row.object
             current_sequence = ""
 
-        if row.is_gap:
+        if row.is_gap and current_sequence is not None:
             current_sequence += "N" * row.gap_length
         else:
             start, end = row.component_beg - 1, row.component_end
@@ -112,3 +116,5 @@ def run(
 
     if current_sequence is not None and current_chrom is not None:
         print_fasta(current_chrom, current_sequence, outfile=outfile)
+    else:
+        raise EmptyAgpError("The input agp has no components!")

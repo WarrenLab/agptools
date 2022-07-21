@@ -9,7 +9,7 @@ from agp.rename import FormatError, ScaffoldNotFoundError, renaming_file_type, r
 def test_parse_renaming_file(tmp_path):
     with open(tmp_path / "renames.tsv", "w") as rename_file:
         print(
-            "scaffold_1\tchr1\t+\nscaffold_2\tchr2\t-\nscaffold_3\tchr3",
+            "scaffold_1\tchr1\t+\n\nscaffold_2\tchr2\t-\nscaffold_3\tchr3",
             file=rename_file,
         )
 

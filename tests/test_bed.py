@@ -2,7 +2,7 @@ from io import StringIO
 
 import pytest
 
-from agp.bed import ParsingError, read
+from agp.bed import BedRange, ParsingError, read
 
 
 def test_read_bed():
@@ -55,3 +55,18 @@ def test_read_bad_bed_line(bed_line):
     with pytest.raises(ParsingError):
         for bed_range in read(StringIO(bed_line)):
             pass
+
+
+@pytest.mark.parametrize(
+    "bed_line, bed_line_str",
+    [
+        (BedRange("scaffold_11", 1, 68766634), "scaffold_11\t1\t68766634"),
+        (BedRange("scaffold_11"), "scaffold_11"),
+        (
+            BedRange("scaffold_11", 1, 2, "+", ["blah", "blee", "bleh"]),
+            "scaffold_11\t1\t2\t+\tblah\tblee\tbleh",
+        ),
+    ],
+)
+def test_bed_to_string(bed_line, bed_line_str):
+    assert str(bed_line) == bed_line_str

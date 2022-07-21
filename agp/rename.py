@@ -45,7 +45,7 @@ def renaming_file_type(filename: str) -> dict[str, tuple[str, str]]:
                     )
                 if len(fields) == 2:  # default to + orientation
                     renaming_dict[fields[0]] = (fields[1], "+")
-                elif len(fields) >= 3:
+                else:
                     if fields[2] not in ["+", "-"]:
                         raise FormatError(
                             f"Line {i+1}: orientation column can only contain + or -"

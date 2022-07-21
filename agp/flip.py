@@ -42,9 +42,8 @@ def reverse_rows(rows: List[AgpRow]) -> List[AgpRow]:
         if not row.is_gap:
             if row.orientation == "+":
                 row.orientation = "-"
-            elif row.orientation == "-":
+            else:
                 row.orientation = "+"
-            # if the orientation is something else, leave it be
 
         reversed_rows.append(row)
 
@@ -78,7 +77,7 @@ def flip(
         for i, row in enumerate(agp_rows):
             if not isinstance(row, str) and row.object == bed_range.chrom:
                 # if no range in seq specified, flip the whole sequence
-                if bed_range.start is None:
+                if bed_range.start is None or bed_range.end is None:
                     rows_to_reverse.append((i, row))
                 # otherwise, flip only the part within range
                 elif (

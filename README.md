@@ -1,4 +1,6 @@
 [![Python package](https://github.com/WarrenLab/agptools/actions/workflows/python-package.yml/badge.svg)](https://github.com/WarrenLab/agptools/actions/workflows/python-package.yml)
+[![Tests Status](./reports/junit/junit-badge.svg?dummy=8484744)](./reports/junit/report.html)
+[![Coverage Status](./reports/coverage/coverage-badge.svg?dummy=8484744)](./reports/coverage/index.html)
 
 # agptools
 Tools for working with agp files

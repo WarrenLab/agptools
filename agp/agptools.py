@@ -10,7 +10,7 @@ import sys
 import screed
 
 import agp
-from agp import assemble, bed, compose, flip, join, remove, rename, split, transform
+from agp import assemble, bed, flip, join, remove, rename, split, transform
 
 
 def parse_args():
@@ -252,50 +252,6 @@ def parse_args():
         default=agp.read(sys.stdin),
     )
     transform_parser.set_defaults(func=lambda a: transform.run(a.bed, a.agp, a.outfile))
-
-    # --- 'compose' command options ---
-    compose_parser = subparsers.add_parser(
-        "compose",
-        help="turn two agps assembling a genome to "
-        "different levels into a single agp.",
-        description="""Given two agp
-            files, each representing a different layer of an assembly, compose
-            them into a single agp file assembling the lowest level into the
-            highest level. For example, if you have one AGP assembling contigs
-            into scaffolds, and another AGP assembling scaffolds into
-            chromosomes, you could use this to make a new AGP assembling
-            contigs directly into chromosomes.""",
-    )
-    compose_parser.add_argument(
-        "-o",
-        "--outfile",
-        type=argparse.FileType("w"),
-        nargs="?",
-        help="where to write output bed [STDOUT]",
-        default=sys.stdout,
-    )
-    compose_parser.add_argument(
-        "-p",
-        "--print-unused",
-        action="store_true",
-        help="""print all objects from inner AGP that
-                                were not used in outer AGP""",
-    )
-    compose_parser.add_argument(
-        "outer_agp",
-        type=agp.open_agp,
-        help="""AGP file of the outer assembly step
-                                (e.g., scaffolds into chromosomes)""",
-    )
-    compose_parser.add_argument(
-        "inner_agp",
-        type=agp.open_agp,
-        help="""AGP file of the inner assembly step
-                                (e.g., contigs into scaffolds)""",
-    )
-    compose_parser.set_defaults(
-        func=lambda a: compose.run(a.outer_agp, a.inner_agp, a.outfile, a.print_unused)
-    )
 
     return parser.parse_args()
 

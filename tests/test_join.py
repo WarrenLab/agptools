@@ -1,8 +1,10 @@
 from os.path import dirname, join
+from unittest.mock import patch
 
 import pytest
 
 from agp import open_agp
+from agp.agptools import main
 from agp.join import (
     BadSequenceNameError,
     JoinGroup,
@@ -78,11 +80,6 @@ def test_make_superscaffold_name(old_names, new_name):
     assert make_superscaffold_name(old_names) == new_name
 
 
-# TODO would be nice to implement, but not all that important
-def test_join_scaffolds():
-    pass
-
-
 @pytest.mark.parametrize(
     "join_txt, correct_agp_filename",
     [
@@ -96,8 +93,19 @@ def test_run_join(join_txt, correct_agp_filename, tmp_path):
         print(join_txt, file=joins_file)
 
     agp_in_path = join(dirname(__file__), "data", "test.agp")
-    with open(tmp_path / "test_out.agp", "w") as outfile:
-        run(joins_type(tmp_path / "joins.txt"), outfile, open_agp(agp_in_path))
+
+    with patch(
+        "sys.argv",
+        [
+            "agptools",
+            "join",
+            join(tmp_path, "joins.txt"),
+            agp_in_path,
+            "-o",
+            join(tmp_path, "test_out.agp"),
+        ],
+    ):
+        main()
 
     with open(tmp_path / "test_out.agp", "r") as test_agp, open(
         join(dirname(__file__), "data", correct_agp_filename)

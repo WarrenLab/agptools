@@ -1,9 +1,11 @@
-import os.path
+from os.path import dirname, join
+from unittest.mock import patch
 
 import pytest
 
 from agp import AgpRow, open_agp
-from agp.bed import BadRangeError, BedRange, EmptyRangeError, open_bed
+from agp.agptools import main
+from agp.bed import BadRangeError, BedRange, EmptyRangeError
 from agp.flip import flip, reverse_rows
 
 
@@ -23,17 +25,34 @@ def test_reverse_rows(sample_agp_rows):
     assert reversed_rows[0].object_beg == 1930402
 
 
-def test_flip():
-    agp_rows = open_agp(os.path.join(os.path.dirname(__file__), "data", "test.agp"))
-    flips = open_bed(os.path.join(os.path.dirname(__file__), "data", "flips.txt"))
+def test_flip(tmpdir):
+    with patch(
+        "sys.argv",
+        [
+            "agptools",
+            "flip",
+            join(dirname(__file__), "data", "flips.txt"),
+            join(dirname(__file__), "data", "test.agp"),
+            "-o",
+            join(tmpdir, "out.agp"),
+        ],
+    ):
+        main()
 
-    flipped_agp_rows = flip(agp_rows, flips)
+    test_out = open_agp(join(tmpdir, "out.agp"))
+    correct_out = open_agp(join(dirname(__file__), "data", "test_flip_out.agp"))
 
-    test_agp = open_agp(
-        os.path.join(os.path.dirname(__file__), "data", "test_flip_out.agp")
-    )
-    for row1, row2 in zip(flipped_agp_rows, test_agp):
+    for row1, row2 in zip(test_out, correct_out):
         assert row1 == row2
+
+
+def test_flip_help(capsys):
+    with patch("sys.argv", ["agptools", "flip", "--help"]):
+        with pytest.raises(SystemExit):
+            main()
+
+    out, err = capsys.readouterr()
+    assert "list of segments to flip, in bed format" in out
 
 
 @pytest.mark.parametrize(

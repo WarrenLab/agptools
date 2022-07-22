@@ -170,6 +170,10 @@ def transform_bed_row(bed_row: BedRange, contig_dict: ContigDict) -> BedRange:
                 bed_row.strand = "-"
             else:
                 bed_row.strand = "+"
+    else:
+        raise UnsupportedOperationError(
+            f"Transforming bed row spanning multiple scaffolds: {bed_row}"
+        )
 
     return bed_row
 

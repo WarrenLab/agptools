@@ -1,7 +1,39 @@
+from os.path import dirname, join
+from unittest.mock import patch
+
 import pytest
 
-from agp import AgpRow, open_agp
+from agp import AgpRow, is_string, open_agp
+from agp.agptools import main
 from agp.remove import ScaffoldNotFoundError, run
+
+
+def test_remove_help(capsys):
+    with patch("sys.argv", ["agptools", "remove", "--help"]):
+        with pytest.raises(SystemExit):
+            main()
+
+    out, err = capsys.readouterr()
+    assert "list of scaffolds to remove, one per line" in out
+
+
+def test_remove(tmpdir):
+    with patch(
+        "sys.argv",
+        [
+            "agptools",
+            "remove",
+            join(dirname(__file__), "data", "scaffolds_to_remove.txt"),
+            join(dirname(__file__), "data", "test.agp"),
+            "-o",
+            join(tmpdir, "remove_out.agp"),
+        ],
+    ):
+        main()
+
+    for row in open_agp(join(tmpdir, "remove_out.agp")):
+        if not is_string(row):
+            assert row.object not in ["scaffold_18", "scaffold_20"]
 
 
 def test_run_remove(tmp_path):

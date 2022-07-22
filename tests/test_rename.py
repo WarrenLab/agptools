@@ -1,8 +1,10 @@
 from os.path import dirname, join
+from unittest.mock import patch
 
 import pytest
 
 from agp import open_agp
+from agp.agptools import main
 from agp.rename import FormatError, ScaffoldNotFoundError, renaming_file_type, run
 
 
@@ -59,6 +61,43 @@ def test_run_rename(rename_map, testfile_name, tmp_path):
         open(tmp_path / "test_out.agp", "w"),
         open_agp(join(dirname(__file__), "data", "test.agp")),
     )
+
+    correct_agp = open_agp(join(dirname(__file__), "data", testfile_name))
+    test_agp = open_agp(tmp_path / "test_out.agp")
+    for correct_line, test_line in zip(correct_agp, test_agp):
+        assert correct_line == test_line
+
+
+@pytest.mark.parametrize(
+    "rename_map, testfile_name",
+    [
+        ({"scaffold_17": ("chr1", "+"), "scaffold_18": ("chr2", "-")}, "renamed_1.agp"),
+        ({"scaffold_16": ("chr1", "+"), "scaffold_17": ("chr2", "-")}, "renamed_2.agp"),
+        ({"scaffold_16": ("chr1", "+"), "scaffold_18": ("chr2", "-")}, "renamed_3.agp"),
+    ],
+)
+def test_rename_main(tmp_path, rename_map, testfile_name):
+    with open(tmp_path / "scaffolds_to_rename.tsv", "w") as rename_file:
+        for old_name, new_name_and_orientation in rename_map.items():
+            print(
+                "\t".join(
+                    [old_name, new_name_and_orientation[0], new_name_and_orientation[1]]
+                ),
+                file=rename_file,
+            )
+
+    with patch(
+        "sys.argv",
+        [
+            "agptools",
+            "rename",
+            join(tmp_path, "scaffolds_to_rename.tsv"),
+            join(dirname(__file__), "data", "test.agp"),
+            "-o",
+            join(tmp_path, "test_out.agp"),
+        ],
+    ):
+        main()
 
     correct_agp = open_agp(join(dirname(__file__), "data", testfile_name))
     test_agp = open_agp(tmp_path / "test_out.agp")

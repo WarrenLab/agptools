@@ -66,7 +66,7 @@ def print_fasta(name: str, sequence: str, outfile: IO, wrap: int = 60):
     """
     print(f">{name}", file=outfile)
     for start_pos in range(0, len(sequence), wrap):
-        print(sequence[start_pos : start_pos + wrap])
+        print(sequence[start_pos : start_pos + wrap], file=outfile)
 
 
 def run(

@@ -7,10 +7,11 @@ from __future__ import annotations
 import argparse
 import sys
 
+import pyfaidx
 import screed
 
 import agp
-from agp import assemble, bed, flip, join, remove, rename, split, transform
+from agp import assemble, bed, flip, join, remove, rename, sanitize, split, transform
 
 
 def parse_args():
@@ -252,6 +253,46 @@ def parse_args():
         default=agp.read(sys.stdin),
     )
     transform_parser.set_defaults(func=lambda a: transform.run(a.bed, a.agp, a.outfile))
+
+    # --- 'transform' command options ---
+    sanitize_parser = subparsers.add_parser(
+        "sanitize",
+        help="clean up agp and contigs so NCBI will accept them",
+        description="""AGP format allows using only part of a contig in a scaffold,
+            but NCBI does not allow this. This module splits contigs into parts
+            according to the AGP, and makes a new agp and fasta that NCBI will
+            not complain about.""",
+    )
+    sanitize_parser.add_argument(
+        "contigs_fasta_in",
+        type=pyfaidx.Fasta,
+        help="input contigs corresponding to input AGP",
+    )
+    sanitize_parser.add_argument(
+        "contigs_fasta_out",
+        type=argparse.FileType("w"),
+        help="path where sanitized contigs should be written",
+    )
+    sanitize_parser.add_argument(
+        "agp_in",
+        nargs="?",
+        type=agp.open_agp,
+        help="AGP file to modify [STDIN]",
+        default=agp.read(sys.stdin),
+    )
+    sanitize_parser.add_argument(
+        "-o",
+        "--agp-out",
+        type=argparse.FileType("w"),
+        nargs="?",
+        help="where to write output AGP [STDOUT]",
+        default=sys.stdout,
+    )
+    sanitize_parser.set_defaults(
+        func=lambda a: sanitize.run(
+            a.agp_in, a.agp_out, a.contigs_fasta_in, a.contigs_fasta_out
+        )
+    )
 
     return parser.parse_args()
 

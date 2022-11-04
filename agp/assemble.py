@@ -8,6 +8,7 @@ from typing import IO, Iterable
 import screed
 
 import agp
+from agp.fasta import print_fasta
 
 
 class NoSuchContigError(Exception):
@@ -41,32 +42,6 @@ def complement(base: str) -> str:
 
 def reverse_complement(sequence: str):
     return "".join(complement(s) for s in sequence[::-1])
-
-
-def print_fasta(name: str, sequence: str, outfile: IO, wrap: int = 60):
-    """
-    Given a sequence name and the sequence itself, print a fasta-
-    formatted string of it.
-
-    Arguments:
-        name: the sequence id
-        sequence: the sequence itself
-        outfile: where to write the sequence to
-        wrap: the number of bases per line of sequence
-
-    Examples:
-        >>> import sys
-        >>> print_fasta(
-        ...    'chr1', 'ATCGACTGATCGACTGACTGACTACTG', outfile=sys.stdout, wrap=10
-        ... )
-        >chr1
-        ATCGACTGAT
-        CGACTGACTG
-        ACTACTG
-    """
-    print(f">{name}", file=outfile)
-    for start_pos in range(0, len(sequence), wrap):
-        print(sequence[start_pos : start_pos + wrap], file=outfile)
 
 
 def run(

@@ -1,0 +1,14 @@
+scaffold_1	1	50	1	W	contig_1	1	50	+
+scaffold_1	51	100	2	N	50	scaffold	yes	na
+scaffold_1	101	150	3	W	contig_2	1	50	-
+scaffold_1	151	200	4	N	50	scaffold	yes	na
+scaffold_1	201	250	5	W	contig_3	1	50	+
+scaffold_2	1	50	1	W	contig_4	1	50	-
+scaffold_2	51	100	2	N	50	scaffold	yes	na
+scaffold_2	101	150	3	W	contig_5	1	50	+
+scaffold_3	1	50	1	W	contig_6	1	50	+
+scaffold_4	1	50	1	W	contig_7	1	50	+
+scaffold_4	51	100	2	N	50	scaffold	yes	na
+scaffold_4	101	150	3	W	contig_8	1	50	-
+scaffold_5	1	50	1	W	contig_9	1	50	+
+scaffold_6	1	50	1	W	contig_10	1	50	+

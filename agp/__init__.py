@@ -37,23 +37,37 @@ class AgpRow:
         try:
             splits = line.strip().split("\t")
             self.object = splits[0]
+            """object column of AGP"""
             self.object_beg = int(splits[1])
+            """object_beg column of AGP"""
             self.object_end = int(splits[2])
+            """object_end column of AGP"""
             self.part_number = int(splits[3])
+            """part_number column of AGP"""
             self.component_type = splits[4]
+            """component_type column of AGP"""
 
             if self.component_type in ["N", "U"]:
                 self.is_gap = True
+                """is_gap column of AGP"""
                 self.gap_length = int(splits[5])
+                """gap_length column of AGP"""
                 self.gap_type = splits[6]
+                """gap_type column of AGP"""
                 self.linkage = splits[7]
+                """linkage column of AGP"""
                 self.linkage_evidence = splits[8]
+                """linkage_evidence column of AGP"""
             else:
                 self.is_gap = False
                 self.component_id = splits[5]
+                """component_id column of AGP"""
                 self.component_beg = int(splits[6])
+                """component_beg column of AGP"""
                 self.component_end = int(splits[7])
+                """component_end column of AGP"""
                 self.orientation = splits[8]
+                """orientation column of AGP"""
         except (ValueError, IndexError) as e:
             raise AgpFormatError(line) from e
 

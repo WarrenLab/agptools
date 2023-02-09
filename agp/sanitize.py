@@ -27,13 +27,26 @@ def divide_into_scaffolds(agp_in: Sequence[AgpRow]) -> Iterator[List[AgpRow]]:
     yield current_scaffold_rows
 
 
-def run(agp_in: Sequence[AgpRow], agp_out: IO, contigs_in: Fasta, contigs_out: IO):
+def run(output_prefix: str, contigs_in: Fasta, agp_in: Sequence[AgpRow]):
+    # open up the necessary output files
+    chromosomes_agp_out = open(f"{output_prefix}.chromosomes.agp", "w")
+    unplaced_agp_out = open(f"{output_prefix}.unplaced.agp", "w")
+    contigs_out = open(f"{output_prefix}.contigs.fa", "w")
+
     contig_counter = 1
     for scaffold_rows in divide_into_scaffolds(agp_in):
-        # NCBI does not like single-component scaffolds with "-"
-        # orientation, so force this not to be the case
-        if len(scaffold_rows) == 1:
-            scaffold_rows[0].orientation = "+"
+        # check whether scaffold is placed or not so that we can output it to
+        # the correct file, and also make sure it's oriented correctly if it is
+        # an unplaced single-component scaffold
+        if scaffold_rows[0].object.startswith("chr"):  # placed scaffold
+            agp_out = chromosomes_agp_out
+        else:  # unplaced scaffold
+            agp_out = unplaced_agp_out
+            # NCBI does not like unplaced single-component scaffolds with "-"
+            # orientation, so force this not to be the case
+            if len(scaffold_rows) == 1:
+                scaffold_rows[0].orientation = "+"
+
         for row in scaffold_rows:
             if not row.is_gap:
                 # make a new contig containing exactly the range of this

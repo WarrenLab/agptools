@@ -258,20 +258,20 @@ def parse_args():
     sanitize_parser = subparsers.add_parser(
         "sanitize",
         help="clean up agp and contigs so NCBI will accept them",
-        description="""AGP format allows using only part of a contig in a scaffold,
-            but NCBI does not allow this. This module splits contigs into parts
-            according to the AGP, and makes a new agp and fasta that NCBI will
-            not complain about.""",
+        description="""AGP format allows lots of things that NCBI's AGP parser
+            does not. This module makes new agp and contig fastas that NCBI
+            will not complain about.""",
     )
     sanitize_parser.add_argument(
-        "contigs_fasta_in",
+        "-o",
+        "--output-prefix",
+        default="NCBI_ready",
+        help="prefix for all output files [NCBI_ready]",
+    )
+    sanitize_parser.add_argument(
+        "contigs_fasta",
         type=pyfaidx.Fasta,
         help="input contigs corresponding to input AGP",
-    )
-    sanitize_parser.add_argument(
-        "contigs_fasta_out",
-        type=argparse.FileType("w"),
-        help="path where sanitized contigs should be written",
     )
     sanitize_parser.add_argument(
         "agp_in",
@@ -280,18 +280,8 @@ def parse_args():
         help="AGP file to modify [STDIN]",
         default=agp.read(sys.stdin),
     )
-    sanitize_parser.add_argument(
-        "-o",
-        "--agp-out",
-        type=argparse.FileType("w"),
-        nargs="?",
-        help="where to write output AGP [STDOUT]",
-        default=sys.stdout,
-    )
     sanitize_parser.set_defaults(
-        func=lambda a: sanitize.run(
-            a.agp_in, a.agp_out, a.contigs_fasta_in, a.contigs_fasta_out
-        )
+        func=lambda a: sanitize.run(a.output_prefix, a.contigs_fasta, a.agp_in)
     )
 
     return parser.parse_args()

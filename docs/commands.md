@@ -260,3 +260,12 @@ and the output would be
 scaffold_16   10952     10960
 scaffold_16   11764764  13768005
 ```
+
+## sanitize
+NCBI has some pretty strict rules about how genomes in the contig fasta + agp
+format combination should be submitted:
+* There must be a separate agp for chromosomes and for unplaced sequences.
+* Unplaced single-component scaffolds must have their single component in the
+  '+' orientation.
+* Each sequence in the contigs file must be used fully and contiguously in the
+  AGP layout.

@@ -15,9 +15,8 @@ classifiers = [
 dependencies = ["screed", "pyfaidx"]
 
 [project.optional-dependencies]
-dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
-test = ["pytest", "pytest-cov", "pytest-html", "genbadge[all]"]
-devel = ["mypy", "ruff"]
+dev = ["bumpver", "pip-tools", "mypy", "ruff"]
+test = ["pytest", "pytest-cov", "pytest-html", "genbadge[all]", "mypy", "ruff"]
 docs = ["mkdocs", "mkdocs-material", "mkdocstrings", "mkdocstrings-python", "pygments"]
 
 [project.scripts]
@@ -30,9 +29,6 @@ Issues = "https://github.com/WarrenLab/agptools/issues"
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
-
-[tool.isort]
-profile = "black"
 
 [tool.mypy]
 ignore_missing_imports = true

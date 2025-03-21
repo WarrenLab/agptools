@@ -6,12 +6,11 @@ authors = [
 ]
 description = "Tools for working with agp files"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
-    "License :: OSI Approved :: MIT License",
 ]
 dependencies = ["screed", "pyfaidx"]
 
@@ -37,3 +36,6 @@ profile = "black"
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.setuptools]
+packages = ["agp"]

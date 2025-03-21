@@ -5,7 +5,7 @@ import pytest
 
 from agp import AgpRow, open_agp
 from agp.agptools import main
-from agp.bed import BedRange, open_bed
+from agp.bed import BedRange
 from agp.transform import (
     BadOrientationError,
     CoordinateNotFoundError,
@@ -13,7 +13,6 @@ from agp.transform import (
     UnsupportedOperationError,
     create_contig_dict,
     find_agp_row,
-    run,
     transform_bed_row,
     transform_single_position,
 )
@@ -95,8 +94,9 @@ def test_transform_main(tmp_path):
     ):
         main()
 
-    with open(tmp_path / "test_out.bed", "r") as bed_out, open(
-        join(dirname(__file__), "data", "transformed.bed"), "r"
-    ) as correct_bed:
+    with (
+        open(tmp_path / "test_out.bed", "r") as bed_out,
+        open(join(dirname(__file__), "data", "transformed.bed"), "r") as correct_bed,
+    ):
         for line1, line2 in zip(bed_out, correct_bed):
             assert line1 == line2

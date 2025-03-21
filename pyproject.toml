@@ -1,3 +1,22 @@
+[project]
+name = "agptools"
+version = "0.0.2"
+authors = [
+  { name="Edward S. Ricemeyer", email="edward.ricemeyer@gmail.com" },
+]
+description = "Tools for working with agp files"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+]
+
+[project.urls]
+Homepage = "https://github.com/WarrenLab/agptools"
+Issues = "https://github.com/WarrenLab/agptools/issues"
+
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"

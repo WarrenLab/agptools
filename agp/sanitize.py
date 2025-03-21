@@ -1,6 +1,7 @@
 """
 Functions for cleaning up an AGP to conform to NCBI rules.
 """
+
 from typing import IO, Iterator, List, Sequence
 
 from pyfaidx import Fasta

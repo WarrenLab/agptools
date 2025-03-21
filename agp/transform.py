@@ -2,6 +2,7 @@
 Functions for transforming genomic coordinates from contig-based to
 scaffold-based.
 """
+
 from __future__ import annotations
 
 from collections import defaultdict

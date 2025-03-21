@@ -1,6 +1,7 @@
 """
 Functions for parsing bed files
 """
+
 import re
 from dataclasses import dataclass
 from typing import Iterator, List, Optional, TextIO, Union

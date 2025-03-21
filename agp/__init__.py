@@ -1,4 +1,5 @@
 """Functions for reading and writing AGP files."""
+
 from typing import Iterator, TextIO, Union
 
 

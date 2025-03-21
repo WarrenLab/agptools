@@ -1,6 +1,7 @@
 """
 Functions for working with fasta format.
 """
+
 from typing import IO
 
 

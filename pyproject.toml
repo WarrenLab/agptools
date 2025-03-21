@@ -6,12 +6,23 @@ authors = [
 ]
 description = "Tools for working with agp files"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
     "License :: OSI Approved :: MIT License",
 ]
+dependencies = ["screed", "pyfaidx"]
+
+[project.optional-dependencies]
+dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
+test = ["pytest", "pytest-cov", "pytest-html", "genbadge[all]"]
+devel = ["mypy", "ruff"]
+docs = ["mkdocs", "mkdocs-material", "mkdocstrings", "mkdocstrings-python", "pygments"]
+
+[project.scripts]
+agptools = "agp.agptools:main"
 
 [project.urls]
 Homepage = "https://github.com/WarrenLab/agptools"
@@ -23,3 +34,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.isort]
 profile = "black"
+
+[tool.mypy]
+ignore_missing_imports = true

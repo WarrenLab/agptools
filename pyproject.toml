@@ -1,5 +1,5 @@
 [project]
-name = "agptools"
+name = "bio_agptools"
 version = "0.0.2"
 authors = [
   { name="Edward S. Ricemeyer", email="edward.ricemeyer@gmail.com" },

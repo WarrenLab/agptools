@@ -6,8 +6,6 @@
 
 ::: agp.bed
 
-::: agp.compose
-
 ::: agp.flip
 
 ::: agp.join

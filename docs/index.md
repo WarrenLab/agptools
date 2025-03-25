@@ -27,12 +27,9 @@ agptools is a suite of scripts for performing edits to an AGP file during this
 manual curation stage of genome assembly.
 
 ## Installation
-I'll get this on PyPI soon so that you can install this with one command
-instead of three, but for now, you have to clone the repository first:
+Unfortunately, `agptools` was taken on PyPI, so it is called `bio_agptools` instead.
 ```bash
-git clone https://github.com/esrice/agptools.git
-cd agptools
-pip install .
+pip install bio_agptools
 ```
 
 ## Commands

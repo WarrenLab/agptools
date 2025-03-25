@@ -37,12 +37,9 @@ contig into scaffold coordinates, and removing or renaming scaffolds. Each of
 these use cases is explained in depth in the manual.
 
 ## Installation
-I'll get this on PyPI soon so that you can install this with one command
-instead of three, but for now, you have to clone the repository first:
+Unfortunately, `agptools` was taken on PyPI, so it is called `bio_agptools` instead.
 ```bash
-git clone https://github.com/esrice/agptools.git
-cd agptools
-pip install .
+pip install bio_agptools
 ```
 
 [agp]: https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/

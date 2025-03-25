@@ -1,6 +1,7 @@
-name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
-
-on: push
+name: Publish Python 🐍 distribution 📦 to PyPI
+on:
+  push:
+    branches: [ master ]
 
 jobs:
   build:
@@ -39,7 +40,7 @@ jobs:
     environment:
       name: pypi
       url: https://pypi.org/p/bio_agptools
-      permissions:
+    permissions:
         id-token: write  # IMPORTANT: mandatory for trusted publishing
 
     steps:

@@ -147,7 +147,7 @@ def transform_bed_row(bed_row: BedRange, contig_dict: ContigDict) -> BedRange:
         )
 
     # retrieve the AGP rows containing the bed range's start and end points
-    agp_row_start = find_agp_row(bed_row.chrom, bed_row.start, contig_dict)
+    agp_row_start = find_agp_row(bed_row.chrom, bed_row.start + 1, contig_dict)
     agp_row_end = find_agp_row(bed_row.chrom, bed_row.end, contig_dict)
 
     # only transform bed ranges that are entirely within one scaffold

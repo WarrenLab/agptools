@@ -59,7 +59,7 @@ class BedRange:
 
     def __str__(self) -> str:
         fields: List[Union[str, int]] = [self.chrom]
-        if self.start and self.end:
+        if self.start is not None and self.end is not None:
             fields += [self.start, self.end]
             if self.strand:
                 fields += [self.strand]
@@ -101,7 +101,7 @@ def read(bedfile: TextIO) -> Iterator[BedRange]:
                 if len(splits) == 1:
                     yield BedRange(splits[0])
                 elif len(splits) == 2:
-                    raise ParsingError(f"Line {i+1} of bed misformatted.")
+                    raise ParsingError(f"Line {i + 1} of bed misformatted.")
                 elif len(splits) == 3:
                     yield BedRange(
                         splits[0],
@@ -117,4 +117,4 @@ def read(bedfile: TextIO) -> Iterator[BedRange]:
                         extra_fields=splits[4:],
                     )
             except (ValueError, IndexError):
-                raise ParsingError(f"Line {i+1} of bed misformatted.")
+                raise ParsingError(f"Line {i + 1} of bed misformatted.")

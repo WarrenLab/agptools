@@ -6,16 +6,10 @@ import pytest
 from agp import AgpRow, open_agp
 from agp.agptools import main
 from agp.bed import BedRange
-from agp.transform import (
-    BadOrientationError,
-    CoordinateNotFoundError,
-    NoSuchContigError,
-    UnsupportedOperationError,
-    create_contig_dict,
-    find_agp_row,
-    transform_bed_row,
-    transform_single_position,
-)
+from agp.transform import (BadOrientationError, CoordinateNotFoundError,
+                           NoSuchContigError, UnsupportedOperationError,
+                           create_contig_dict, find_agp_row, transform_bed_row,
+                           transform_single_position)
 
 
 @pytest.fixture
@@ -80,14 +74,21 @@ def test_transform_single_position(in_position, agp_row, out_position):
     assert transform_single_position(in_position, agp_row) == out_position
 
 
-def test_transform_main(tmp_path):
+@pytest.mark.parametrize(
+    "bed_in, agp, correct_bed_out",
+    [
+        ("test_transform.bed", "test_transform.agp", "test_transform_out.bed"),
+        ("test_transform2.bed", "test_transform2.agp", "test_transform2_out.bed"),
+    ],
+)
+def test_transform_main(tmp_path, bed_in, agp, correct_bed_out):
     with patch(
         "sys.argv",
         [
             "agptools",
             "transform",
-            join(dirname(__file__), "data", "test_transform.bed"),
-            join(dirname(__file__), "data", "test_transform.agp"),
+            join(dirname(__file__), "data", bed_in),
+            join(dirname(__file__), "data", agp),
             "-o",
             join(tmp_path, "test_out.bed"),
         ],
@@ -95,8 +96,8 @@ def test_transform_main(tmp_path):
         main()
 
     with (
-        open(tmp_path / "test_out.bed", "r") as bed_out,
-        open(join(dirname(__file__), "data", "transformed.bed"), "r") as correct_bed,
+        open(tmp_path / "test_out.bed", "r") as test_bed_out,
+        open(join(dirname(__file__), "data", correct_bed_out), "r") as correct_bed,
     ):
-        for line1, line2 in zip(bed_out, correct_bed):
+        for line1, line2 in zip(test_bed_out, correct_bed):
             assert line1 == line2

@@ -1,2 +1,3 @@
-scaffold	0	3	+
-scaffold	50	100	+
+scaffold1	0	3	+
+scaffold1	50	100	+
+scaffold2	99	100	-

@@ -167,6 +167,11 @@ def transform_bed_row(bed_row: BedRange, contig_dict: ContigDict) -> BedRange:
             and bed_row.strand
             and agp_row_start.orientation == "-"
         ):
+            # these two lines are necessary because bed is 0-based while agp is
+            # 1-based, so reverse-complement coordinates are different by 1
+            bed_row.start -= 1
+            bed_row.end -= 1
+
             if bed_row.strand == "+":
                 bed_row.strand = "-"
             else:
